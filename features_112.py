@@ -19,7 +19,7 @@ import math
 #ecg_leads,ecg_labels,fs,ecg_names = load_references()     # Importiere EKG-Dateien, zugehörige Diagnose, Sampling-Frequenz (Hz) und Name (meist fs=300 Hz)
 
 
-def features(ecg_leads,ecg_labels,fs,ecg_names):
+def features(ecg_leads,fs,ecg_names):
 
 
 
@@ -35,7 +35,7 @@ def features(ecg_leads,ecg_labels,fs,ecg_names):
     # alt
     sdnn_afib = np.array([])                                  # Initialisierung afib ("A") SDNN.
     # neu
-    sdnn = np.array([])
+    sdnn = np.array([])                                       # Initialisierung des SDNN Wertes
     peak_diff_mean = np.array([])                             # Initialisierung Mittelwert des R-Spitzen Abstand.
     peak_diff_median = np.array([])                           # Initialisierung Median des R-Spitzen Abstand.
     peaks_per_measure = np.array([])                          # Initialisierung Anzahl der R-Spitzen.
@@ -63,10 +63,19 @@ def features(ecg_leads,ecg_labels,fs,ecg_names):
     for idx, ecg_lead in enumerate(ecg_leads):
 
         ### Zeitbereich
-        r_peaks = detectors.hamilton_detector(ecg_lead)       # Detektion der QRS-Komplexe.
-        peak_to_peak_diff = (np.diff(r_peaks))                # Abstände der R-Spitzen.
-        sdnn_value = np.std(np.diff(r_peaks)/fs*1000)         # Berechnung der Standardabweichung der Schlag-zu-Schlag Intervalle (SDNN) in Millisekunden.
+        r_peaks = detectors.swt_detector(ecg_lead)            # Detektion der QRS-Komplexe.(SWT>PT>HAMI>CHRIS)  
 
+        if len(r_peaks)<5:                                   # Wenn zu wenige peaks detektiert
+          
+          ecg_lead=ecg_lead[1500::1]                              # Wir skippen die ersten 5 Sekunden
+          r_peaks = detectors.swt_detector(ecg_lead)            # Detektion der QRS-Komplexe.(SWT>PT>HAMI>CHRIS)
+          
+          if len(r_peaks)<10:                                 # Wenns immernoch nicht klappt überschreiben wir peaks mit 0 
+            r_peaks = [0,1]
+            # continue                          -> zum skippen der Messung müssten wir auch beim training die label nr rauswerfen
+        
+        peak_to_peak_diff = (np.diff(r_peaks))   #/fs*1000)                # Abstände der R-Spitzen.
+        sdnn = np.append(sdnn,np.std(np.diff(r_peaks)/fs*1000))         # Berechnung der Standardabweichung der Schlag-zu-Schlag Intervalle (SDNN) in Millisekunden.
 
         ### Frequenzbereich    
         y = ecg_lead                                          # Laden des Messung
@@ -76,51 +85,91 @@ def features(ecg_leads,ecg_labels,fs,ecg_names):
                 y = np.append(y, 0)
         yf = fft(y)                                           # Berechnung des komplexen Spektrums.
         r_yf = 2.0/N * np.abs(yf[0:N//2])                     # Umwandlung in ein reelles Spektrum.
-        normier_faktor = 1/(np.sum(r_yf))                     # Inverses Integral über Frequenzbereich
-
+        normier_faktor = (np.sum(r_yf))                     # Inverses Integral über Frequenzbereich  
+                                                              # Gesamt integ, weil unten direkt der gesamte freq. bereich normiert wird
 
         ### LowPass Filter
         yf_lowPass = np.array([]);                            # Tiefpassfilter von Frequenz (0-450)*fd, dass entspricht (0-15)Hz.
         for i in range(0,450):
-           yf_lowPass = np.append(yf_lowPass, r_yf[i])
-
+          yf_lowPass = np.append(yf_lowPass, r_yf[i])
+          if math.isnan(r_yf[i]):
+            print("error 1")
+             
         ### BandPass Filter
         yf_bandPass = np.array([]);                           # Bandpassfilter von Frequenz (451-3500)*fd, dass entspricht (15-116)Hz.
         for i in range(451,3500):
-            yf_bandPass = np.append(yf_bandPass, r_yf[i])
-
+          yf_bandPass = np.append(yf_bandPass, r_yf[i])
+          if math.isnan(r_yf[i]):
+            print("error 2")
+            
         ### HighPass Filter                                   # Hochpassfilter von Frequenz (3501-3999)*fd, dass entspricht (116-133)Hz.
         yf_highPass = np.array([]);
         for i in range(3501,3999):
-            yf_highPass = np.append(yf_highPass, r_yf[i])
+          yf_highPass = np.append(yf_highPass, r_yf[i])
+          if math.isnan(r_yf[i]):
+            print("error 3")
 
-        ### Features:       Relatives Gewicht der Unter-, Mittel- und Oberfreqeunzen.
+########### Features:       Relatives Gewicht der Unter-, Mittel- und Oberfreqeunzen.
         relativ_lowPass = np.append(relativ_lowPass, np.sum(yf_lowPass)/normier_faktor)
+        if math.isnan(np.sum(yf_lowPass)/normier_faktor):
+          print("error 4")
+          
         relativ_bandPass = np.append(relativ_bandPass, np.sum(yf_bandPass)/normier_faktor)
+        if math.isnan(np.sum(yf_bandPass)/normier_faktor):
+          print("error 5")
+          
         relativ_highPass = np.append(relativ_highPass, np.sum(yf_highPass)/normier_faktor)
-
-        ### Feature:       Maximaler Ausschlag/Amplitude einer Messung.
+        if math.isnan(np.sum(yf_highPass)/normier_faktor):
+          print("error 6")
+          
+########### Feature:       Maximaler Ausschlag/Amplitude einer Messung.
+        
         max_amplitude = np.append(max_amplitude, max(r_yf))
-
-        ### Features:       R-Spitzen Abstand und Anzahl einer Messung.
+        if math.isnan(max(r_yf)):
+          print("error 7")
+          
+########### Features:       R-Spitzen Abstand und Anzahl einer Messung.
+        
         peaks_per_measure = np.append(peaks_per_measure, len(r_peaks))
+        if math.isnan(len(r_peaks)):
+          print("error 8")
+          
         peak_diff_mean = np.append(peak_diff_mean, np.mean(peak_to_peak_diff))
+        if math.isnan(np.mean(peak_to_peak_diff)):
+          print("error 9")
+          print(r_peaks)
+          print(peak_to_peak_diff)
+          print(idx, ecg_lead)
+          print(idx)
+          print(ecg_lead)
+          print(ecg_names[idx])
+          
         peak_diff_median = np.append(peak_diff_median, np.median(peak_to_peak_diff))
+        if math.isnan(np.median(peak_to_peak_diff)):
+          print("error 10")
+          
+########### Feature:        Anzahl an Spektrum-Spitzen im Niederfrequenzband.
 
-        ### Feature:        Anzahl an Spektrum-Spitzen im Niederfrequenzband.
         max_peak_sp = max(r_yf)                               # Ermittlung der höchsten Spitze.
         peaks_low = np.array([])                    
         for i in range(0, 4500):                   # Alle Spitzen übernehmen welche 80% der  höchsten Spitze erreichen.
             if r_yf[i] > 0.8*max_peak_sp:
                 peaks_low = np.append(peaks_low, r_yf[i])
         peaks_per_lowPass = np.append(peaks_per_lowPass, peaks_low.size)  # Ermittlung der Anzahl der Spitzen mit mindesten 80% der maximal Spitze.
-    
-        ### Feature:        RMSSD
-        #n = peak_to_peak_diff.size                 # Anzahl an R-Spitzen-Abständen
-        #sum = 0.0
-        #for i in range(0, n-2):                    # Berechnung des RMSSD-Wertes
-        #    sum += (peak_to_peak_diff[i + 1] - peak_to_peak_diff[i])**2
-        #rmssd = np.append(rmssd, math.sqrt(1/((n-1))*sum))
+        if math.isnan(peaks_low.size):
+          print("error 11")
+          
+########### Feature:        RMSSD
+
+        n = peak_to_peak_diff.size                 # Anzahl an R-Spitzen-Abständen
+        sum = 0.0
+        for i in range(0, n-2):                    # Berechnung des RMSSD-Wertes
+            sum += (peak_to_peak_diff[i + 1] - peak_to_peak_diff[i])**2
+            if math.isnan(sum):
+              print("error sum")
+        rmssd = np.append(rmssd, math.sqrt(1/((n-1))*sum))
+        if math.isnan(math.sqrt(1/((n-1))*sum)):
+          print("error 12")
 
         ### Label-Erkennung und Zuweisung zu den Features.
         #if ecg_labels[idx]=='N':
@@ -134,14 +183,13 @@ def features(ecg_leads,ecg_labels,fs,ecg_names):
         #if ecg_labels[idx]=='~':
         #      labels = np.append(labels, '~')
         if (idx % 100)==0:
-          print(str(idx) + "\t EKG Signale wurden verarbeitet.")
+          print("Features von: \t" + str(idx) + "\t EKG Signalen wurden verarbeitet.")
 
 
     ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
-    features =np.transpose(np.array([  relativ_lowPass, relativ_highPass, relativ_bandPass]))
-                    # labels raus  --- , [rmssd] auch raus weil es da ein fehler gibt
-                    # peak_diff_mean -- gibt auch fehler
-                    # peak_diff_median, peaks_per_measure, peaks_per_lowPass, max_amplitude,
+    features =np.transpose(np.array([  relativ_lowPass, relativ_highPass, relativ_bandPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peaks_per_lowPass, peak_diff_mean, rmssd]))
+                    # labels raus  --- max_ampl geaddet
+                    
     return features
 
     ####################################################################################    Plots

@@ -39,7 +39,7 @@ sick=0
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,ecg_labels,fs,ecg_names);                 
+features = features(ecg_leads,fs,ecg_names);                 
 
 
 ################################################################## Change labels to 1 and 0
@@ -110,9 +110,9 @@ print(y_test)
 cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)        # Teil in 10 gruppen,            
 
 
-n_f1 = cross_val_score(model, X_train, y_train, scoring='f1', cv=cv, n_jobs=-1, error_score='raise')       # f1 fürs scoring
+n_f1 = cross_val_score(model, X_test, y_test, scoring='f1', cv=cv, n_jobs=-1, error_score='raise')       # f1 fürs scoring
 
-n_accuracy = cross_val_score(model, X_train, y_train, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')       # für uns 
+n_accuracy = cross_val_score(model, X_test, y_test, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')       # für uns 
 
 
 # Printen für uns                                                    

@@ -7,11 +7,8 @@ Reads the training data and trains the RandomForrest Classifier
 __author__ = "Gruppe 112"
 
 import numpy as np
-
 from sklearn.ensemble import RandomForestClassifier
-
 from wettbewerb import load_references
-
 from features_112 import features
 import features_112
 
@@ -34,7 +31,7 @@ def RandomForrest_112():
 
 ########################### Calculate the features ######################################################
     
-    features = features_112.features(ecg_leads,ecg_labels,fs,ecg_names)
+    features = features_112.features(ecg_leads,fs,ecg_names)
     
     #features = features(ecg_leads,ecg_labels,fs,ecg_names)             --> das will er nicht checken auch mit methoden import
 
