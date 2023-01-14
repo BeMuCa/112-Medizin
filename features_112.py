@@ -19,7 +19,7 @@ import math
 #ecg_leads,ecg_labels,fs,ecg_names = load_references()     # Importiere EKG-Dateien, zugehörige Diagnose, Sampling-Frequenz (Hz) und Name (meist fs=300 Hz)
 
 
-def features(ecg_leads,fs,ecg_names):
+def features(ecg_leads,fs):
 
 
 
@@ -62,6 +62,20 @@ def features(ecg_leads,fs,ecg_names):
     ### Datenverarbeitung für jede Messung. Die Ergebnisse werden in den Arrays der Feature-List gespeichert.
     for idx, ecg_lead in enumerate(ecg_leads):
 
+        ### Anzahl der ecg_leads anpassen:
+        
+        #y = ecg_lead                                          # Laden des Messung
+        ## mit '0'
+        #if len(y)<4499 :                                      # Bei weniger Messungen (<9000) werden "0" an den Array gehängt.
+        #    d = 4500-len(y)                                   # müsste hier nicht <9000 hin?
+        #    for i in range(0,d):
+        #        y = np.append(y, 0)
+        ## Werte verdoppelt
+        if len(ecg_lead)<9000:
+          teiler = 9000//len(ecg_lead)                       # 2999 ecgs zb -> Teiler= 3(weil gerundet) -> ecgs werden mit 2 weiteren ecgs erweitert
+          for i in range (0,teiler-1):                       # -> 2999*3= 8997; 
+            ecg_lead = np.append(ecg_lead, ecg_lead)         # potentiell erweitern sodass wir safe auf 9000 kommen (aber unnötig)
+
         ### Zeitbereich
         r_peaks = detectors.swt_detector(ecg_lead)            # Detektion der QRS-Komplexe.(SWT>PT>HAMI>CHRIS)  
 
@@ -78,12 +92,7 @@ def features(ecg_leads,fs,ecg_names):
         sdnn = np.append(sdnn,np.std(np.diff(r_peaks)/fs*1000))         # Berechnung der Standardabweichung der Schlag-zu-Schlag Intervalle (SDNN) in Millisekunden.
 
         ### Frequenzbereich    
-        y = ecg_lead                                          # Laden des Messung
-        if len(y)<4499 :                                      # Bei weniger Messungen (<9000) werden "0" an den Array gehängt.
-            d = 4500-len(y)
-            for i in range(0,d):
-                y = np.append(y, 0)
-        yf = fft(y)                                           # Berechnung des komplexen Spektrums.
+        yf = fft(ecg_lead)                                    # Berechnung des komplexen Spektrums.
         r_yf = 2.0/N * np.abs(yf[0:N//2])                     # Umwandlung in ein reelles Spektrum.
         normier_faktor = (np.sum(r_yf))                     # Inverses Integral über Frequenzbereich  
                                                               # Gesamt integ, weil unten direkt der gesamte freq. bereich normiert wird
@@ -137,12 +146,7 @@ def features(ecg_leads,fs,ecg_names):
         peak_diff_mean = np.append(peak_diff_mean, np.mean(peak_to_peak_diff))
         if math.isnan(np.mean(peak_to_peak_diff)):
           print("error 9")
-          print(r_peaks)
-          print(peak_to_peak_diff)
-          print(idx, ecg_lead)
-          print(idx)
-          print(ecg_lead)
-          print(ecg_names[idx])
+
           
         peak_diff_median = np.append(peak_diff_median, np.median(peak_to_peak_diff))
         if math.isnan(np.median(peak_to_peak_diff)):

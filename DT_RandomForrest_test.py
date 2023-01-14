@@ -4,7 +4,7 @@
 #import scipy.io as sio
 
 import matplotlib.pyplot as plt
-
+import pickle
 #import pandas as pd
 
 # evaluate random forest algorithm for classification
@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics                                     # for F1 score
 
 from wettbewerb import load_references
 from features_112 import features
@@ -25,21 +26,15 @@ from features_112 import features
 ecg_leads,ecg_labels,fs,ecg_names = load_references() # Importiere EKG-Dateien, Diagnose(A,N),
                                                       # Sampling-Frequenz (Hz) und Name (meist fs=300 Hz)
 
-
-
 ################################################################## Array + Debugging stuff init
 
 labels = np.array([])               # Array für labels mit 1(A) und 0(N)
 fail_label = np.array([])           # Array für labels mit ~ und O
 
-noise=0
-healthy=0
-sick=0
-
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs,ecg_names);                 
+features = features(ecg_leads,fs);                 
 
 
 ################################################################## Change labels to 1 and 0
@@ -48,12 +43,10 @@ for nr,y in enumerate(ecg_labels):
 
     if ecg_labels[nr] == 'N':                   # normal:   N = 0
         labels = np.append(labels,0)
-        healthy+=1
         continue                                                                                # continue damit der nicht ins else geht
 
     if ecg_labels[nr] == 'A':                   # Flimmern: A = 1
         labels = np.append(labels,1)
-        sick+=1
         continue
 
     #if ecg_labels[nr] != 'A' and ecg_labels[nr] != 'N':                                       # else wollte nicht klappen irgendwie
@@ -61,7 +54,6 @@ for nr,y in enumerate(ecg_labels):
         fail_label= np.append(fail_label, nr)
         #features = np.delete(features, nr,0)
         #labels = np.append(labels,-1)           # noise und anderes : -1
-        noise += 1
 
 
 ################################################################## delete labels and related features with values != 0 or 1 
@@ -69,56 +61,53 @@ for nr,y in enumerate(ecg_labels):
 features = np.delete(features, fail_label.astype(int), axis=0)          # Delete every ~ or O in features
 
 
-################################################################## Debugging stuff 
-
-print("label shape:\n")
-print(labels.shape)
-print("NOISE:\n")
-print(noise)
-print("SICK:\n")
-print(sick)
-print("HEALTHY:\n")
-print(healthy)
-
-print("feature Shape:\n")           # rows:6000  -- column: 8
-print(features.shape)
-
-print("fail:\n")
-print(fail_label.shape)
-
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
 
 ##################################################################  Modell und Training 
 
-model = RandomForestClassifier()
+model = RandomForestClassifier(n_estimators= 20, max_features=7, criterion = "entropy")
 
 model.fit(X_train,y_train)
 
 ##################################################################  Prediction
 
-Predictions = model.predict(X_test)
-print("PREDICTION:\n")
-print(Predictions)
-print(y_test)
+Predictions = model.predict(X_test)         
 
+##################################################################  Performance berechnung      
 
-##################################################################  Performance berechnung 
-
-cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)        # Teil in 10 gruppen,            
-
-
-n_f1 = cross_val_score(model, X_test, y_test, scoring='f1', cv=cv, n_jobs=-1, error_score='raise')       # f1 fürs scoring
-
-n_accuracy = cross_val_score(model, X_test, y_test, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')       # für uns 
+# nutzbar mit 'N' -> 0 (statt '0'); 
+#cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)        # Teil in 10 gruppen,            
+#
+#n_f1 = cross_val_score(model, X_test, y_test, scoring='f1', cv=cv, n_jobs=-1, error_score='raise')       # f1 fürs scoring
+#
+#n_accuracy = cross_val_score(model, X_test, y_test, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')       # für uns 
 
 
 # Printen für uns                                                    
+print("################")
+print(Predictions)
+print("################")
 
-print('Accuracy: %.3f (%.3f)' % (np.mean(n_accuracy), np.std(n_accuracy)))                # Mittelwert und Standartdeviation
+print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
+print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 
-print('Der F1 score: \n')
+print('#####################')
 
-print(n_f1)
+#print('Accuracy: %.3f (%.3f)' % (np.mean(n_accuracy), np.std(n_accuracy)))                # Mittelwert und Standartdeviation
+
+#print('Der F1 score: \n')
+
+#print(n_f1)
+
+print("Saving...")
+
+
+########################## save model
+#filename = "RF_Model.pickle"
+#
+#pickle.dump(model, open(filename, "wb"))
+#
+print("----done------")

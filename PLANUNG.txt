@@ -1,0 +1,17 @@
+
+1. RF HyperParameterTesting
+2. RF in abgebbare form bringen
+2.1 RF Pickle load testen
+                            2.2 Test ob Pickle in requierments ist, bzw welche version ich nutz
+                            2.3 RF: predict gibt [0. 1.] raus wegen Label change zu 1,0 -> brauchen ['1' '0'] wie bei XGB
+            XGB: 'N' -> '1'  ; es kommt 1. raus bei predict -> umwandeln float -> string  
+            RF : 'N' -> '1'  ; es kommt '1' raus bei pred   -> kein umwandeln nötig
+
+
+3. Features adden (Discord)
+    4. Learning Curve Plotten (https://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html#sphx-glr-auto-examples-model-selection-plot-learning-curve-py)
+OVERFITTING STUFF:      https://machinelearningmastery.com/learning-curves-for-diagnosing-machine-learning-model-performance/
+
+5. kNN?
+6. SVM
+7. Ensemble?

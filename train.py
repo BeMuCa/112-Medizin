@@ -10,7 +10,20 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from wettbewerb import load_references
 from features_112 import features
-import features_112
+import features_112 as features_112
+
+def GBoosting_112(): 
+    """
+    Trains the GBoosting classifier on the trainingset
+        
+    Parameters
+    ----------
+    None
+    
+    Returns
+    -------
+    Model : Trained Classifier
+    """
 
 def RandomForrest_112(): 
     """
@@ -31,7 +44,7 @@ def RandomForrest_112():
 
 ########################### Calculate the features ######################################################
     
-    features = features_112.features(ecg_leads,fs,ecg_names)
+    features = features_112.features(ecg_leads,fs)
     
     #features = features(ecg_leads,ecg_labels,fs,ecg_names)             --> das will er nicht checken auch mit methoden import
 
@@ -63,12 +76,12 @@ def RandomForrest_112():
     
 ########################### delete feature for the labels ~ and O    #########################################
     
-    features = np.delete(features, fail_label.astype(int), axis=0)
+    features = np.delete(features, fail_label.astype(int), axis=0)                                # astype.(int) zum casten, nötig?( eig nicht weil die array nr immer ints sind)
 
 ########################### Model und Training ###############################################################
 
     model = RandomForestClassifier()
     
-    model.fit(features,labels)
+    model.fit(features,labels)              # training
 
     return model
