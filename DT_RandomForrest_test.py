@@ -68,7 +68,7 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 ##################################################################  Modell und Training 
 
-model = RandomForestClassifier(n_estimators= 20, max_features=7, criterion = "entropy")
+model = RandomForestClassifier(n_estimators= 160, max_features=5, criterion = "entropy") # 160, 5, entropy - 0.971 ; (80, 6 = 0.9567) -- alt: 20,7 = 0,9561
 
 model.fit(X_train,y_train)
 
@@ -105,9 +105,9 @@ print('#####################')
 print("Saving...")
 
 
-########################## save model
+########################### save model
 #filename = "RF_Model.pickle"
 #
 #pickle.dump(model, open(filename, "wb"))
 #
-print("----done------")
+#print("----done------")

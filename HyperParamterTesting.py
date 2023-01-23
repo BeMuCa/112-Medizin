@@ -70,9 +70,9 @@ def HyperTest_XGB():
 
     ## Hyperparameter Setup ##
     # num_round                                      # Anzahl Boosting iterationen : useless if we use early stoppage
-    p1_range = np.linspace(3,11, num = 6)            # max depth     : Maximale tiefe der Bäume
+    p1_range = np.array(range(1,20))                 # max depth     : Maximale tiefe der Bäume
     p2_range = np.linspace(0,1, num = 10)            # eta           : learning rate     
-    p3_range = np.linspace(0,10, num = 11)           # gamma         : Minimum loss reduction required to make a further partition
+    p3_range = np.linspace(0,10, num = 11)           # gamma         : Minimum loss reduction required to make a further partition (just fyi)
     
     
     evallist = [(dtrain, 'train'), (dtest, 'eval')]            
@@ -137,7 +137,7 @@ def HyperTest_RF():
     ##### setup #####
 
     p1_range = np.arange(10,200,10)                   # n_estimators  : Anzahl Bäume
-    p2_range = np.arange(1,10,1)            # max features  : Anzahl maximal zu nutzender Feats     
+    p2_range = np.arange(1,16,1)            # max features  : Anzahl maximal zu nutzender Feats     
     p3_range = np.arange(0,2,1)                       # criterion     : 3 optionen für split Berechnung
 
     p1_res = np.array([])
@@ -205,4 +205,6 @@ def HyperTest_RF():
 
 
 
-HyperTest_RF()
+#HyperTest_RF()
+
+HyperTest_XGB()

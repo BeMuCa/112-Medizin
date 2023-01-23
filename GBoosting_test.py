@@ -73,7 +73,8 @@ dtest = xgb.DMatrix(X_test_boost, label=y_test_boost) # features und labels in D
 
 evallist = [(dtrain, 'train'), (dtest, 'eval')]             # evaluieren des Trainings
 num_round = 30                                              # ab 21,22,23 .. alle gleich
-param = {'max_depth': 10, 'eta': 0.1111111111, 'objective': 'binary:hinge', 'gamma': 7.0}       # param für das Modell      (max depth 5)
+param = {'max_depth': 16, 'eta': 0.111111111, 'objective': 'binary:hinge', 'gamma': 7.0}       # param für das Modell      (max depth 5)
+# 16,0.11,7.0 = 0.9597 -- altt:10;0.1111;7.0 = 0.9597(0.96)
 
 ######### eigentliche training:
 
@@ -112,7 +113,7 @@ print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, y_prediction))
 print("F1:" , metrics.f1_score(y_test_boost, y_prediction, average='micro'))       # weil wir alles in float haben kein binary mgl
 
 ##################################################################  Save Trained Modell
-#
-#bst.save_model('GBoosting_model.json')
-#
+
+bst.save_model('GBoosting_model.json')
+
 print("-----DONE-----")
