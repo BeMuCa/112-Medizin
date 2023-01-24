@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Test of Gradien Boosting algorithm
-#   Plotten der Feature Gains
-#   Plotten der Anzahl an Feature Nutzungs 
-#   Ganz unten kann das Modell des GBoostings gespeichert werden
-#
-#
+"""
+Test of Gradien Boosting algorithm
+   Plotten der Feature Gains
+   Plotten der Anzahl an Feature Nutzungs 
+   Das Modell des GBoostings kann gespeichert werden
+   F1:0.95978(0.96)
+"""
+
 
 #import csv
 #import scipy.io as sio
@@ -39,7 +41,7 @@ Predictions_boost = np.array([], dtype=object)          # Array für Prediction
 
 ########################### Calculate the features ######################################################
 
-features = features(ecg_leads,fs)          #   --> das will er nicht checken auch mit methoden import
+features = features(ecg_leads,fs,1)          #   --> das will er nicht checken auch mit methoden import
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -81,24 +83,27 @@ param = {'max_depth': 16, 'eta': 0.111111111, 'objective': 'binary:hinge', 'gamm
 bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds = 4)        # xgb.train returns booster model
 
 ############################### FEATURE TESTING 
-#featureScore_weight = bst.get_score( importance_type='weight')    #the number of times a feature is used to split the data across all trees. 
-#featureScore_gain = bst.get_score( importance_type='gain')        #the average gain across all splits the feature is used in.
-#
-### plot the weight
-#keys_weight = featureScore_weight.keys()
-#values_weight = featureScore_weight.values()
-### plot the gain
-#keys_gain = featureScore_gain.keys()
-#values_gain = featureScore_gain.values()
-### choose 1
-#
-#fig, ax = plt.subplots(figsize=(10,10))
-#ax.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
-##ax.set_title("GAIN per feature")
-##ax.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
-##ax.set_title("Number of times used")
-#plt.show()
-#
+## choose 1:
+
+featureScore_weight = bst.get_score( importance_type='weight')    #the number of times a feature is used to split the data across all trees. 
+featureScore_gain = bst.get_score( importance_type='gain')        #the average gain across all splits the feature is used in.
+
+## plot the weight
+keys_weight = featureScore_weight.keys()
+values_weight = featureScore_weight.values()
+
+## plot the gain
+keys_gain = featureScore_gain.keys()
+values_gain = featureScore_gain.values()
+
+
+fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(10,10))
+ax1.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
+ax1.set_title("GAIN per feature")
+ax2.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
+ax2.set_title("Number of times used")
+plt.show()
+
 ##################################################################  Prediction
 
 y_pred = bst.predict(dtest)             # [ 1.  0. ....] -> List voller Floats
@@ -106,14 +111,18 @@ y_pred = bst.predict(dtest)             # [ 1.  0. ....] -> List voller Floats
 y_prediction = [str(round(value)) for value in y_pred]             # ['1', '0', ..]
 
 ##################################################################  Performance berechnung 
+print("################")
+print(y_prediction)
+print("######### XGB #######")
 
-print("-------------")
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, y_prediction))
 
 print("F1:" , metrics.f1_score(y_test_boost, y_prediction, average='micro'))       # weil wir alles in float haben kein binary mgl
-
+print("################")
 ##################################################################  Save Trained Modell
 
-bst.save_model('GBoosting_model.json')
+print("Saving...")
+
+bst.save_model('GBoosting_model_ensemble.json')
 
 print("-----DONE-----")

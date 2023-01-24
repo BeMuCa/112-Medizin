@@ -80,10 +80,10 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
     labels = np.array([], dtype=object)
     
     for nr,y in enumerate(Predictions_array):                           ## We will probably need A,N instead of 0,1
-        if Predictions_array[nr] == 0.:                   
+        if y == 0.:                   
             labels = np.append(labels,'N')  # normal = 0,N           
 
-        if Predictions_array[nr] == 1.:
+        if y == 1.:
             labels = np.append(labels,'A')  # flimmern = 1,A
 
 ########################### Form into the Output Prediction form ########################################################    

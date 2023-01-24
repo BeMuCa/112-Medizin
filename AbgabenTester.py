@@ -81,7 +81,7 @@ def test(model_name : str='GBoosting_model.json'):
         print("----- Testing RF ... ------")
         loaded_model = pickle.load(open(model_name, "rb"))            # load model
 
-        Predictions_array = loaded_model.predict(X_test_boost)          # predict
+        Predictions_array = loaded_model.predict(features)          # predict
     
 
     ##################          XGB             #########################
@@ -90,7 +90,7 @@ def test(model_name : str='GBoosting_model.json'):
         bst = xgb.Booster()
         bst.load_model(fname = model_name)              ## load model
 
-        dtest = xgb.DMatrix(X_test_boost)                   ## DMatrix format is needed -- bei abgabe hier features rein
+        dtest = xgb.DMatrix(features)                   ## DMatrix format is needed -- bei abgabe hier features rein
         
         Predictions_array = bst.predict(dtest)                     ## predict based on the features
         
@@ -99,25 +99,25 @@ def test(model_name : str='GBoosting_model.json'):
     print("DAS SIND DIE PREDICITONS", Predictions_array)
 
     ######################################################################## UMWANDELN DER PREDICTS ZU 'A' und 'N'
-    labels = np.array([], dtype=object)
+    pred = np.array([], dtype=object)
     
     for nr,y in enumerate(Predictions_array):                           
-        if Predictions_array[nr] == 0. :                   
-            labels = np.append(labels,'N')  # normal = 0,N           
+        if y == 0. :                   
+            pred = np.append(pred,'N')  # normal = 0,N           
 
-        if Predictions_array[nr] == 1. :
-            labels = np.append(labels,'A')  # flimmern = 1,A
+        if y == 1. :
+            pred = np.append(pred,'A')  # flimmern = 1,A
             
-    print("DAS SIND DIE LABELS MIT A; N EINGESETZT:", labels)
+    
     
 
 ##################################################################  Performance berechnung 
 
     print("-------------")
-    print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, labels))
+    print("Accuracy: %.3f " % metrics.accuracy_score(labels, pred))
 
-    print("F1:" , metrics.f1_score(y_test_boost, labels, average='micro'))
+    print("F1:" , metrics.f1_score(labels, pred, average='micro'))
 
     
 test()
-test('RF_Model.pickle')
+#test('RF_Model.pickle')

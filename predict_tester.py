@@ -107,19 +107,36 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
                                
         
 ecg_leads,ecg_labels,fs,ecg_names = load_references()
+
+sdnn = np.array([])
+rmssd_neu = np.array([])
+peak_diff_mean = np.array([])
+a = [0,1,2]
+peak_to_peak_diff = (np.diff(a))
+print("peak2peak:",peak_to_peak_diff)
+sdnn = np.append(sdnn ,np.std(np.diff(a)/fs*1000))
+print("sdnn:",sdnn)
+result_rmssd = td.rmssd(peak_to_peak_diff)
+rmssd_neu = np.append(rmssd_neu ,result_rmssd['rmssd'])
+print("rmssd:", rmssd_neu )
+peak_diff_mean = np.append(peak_diff_mean, np.mean(peak_to_peak_diff))
+print(peak_diff_mean)
+
+features = features_112.features(ecg_leads,fs,1)
+
 #print(predict_labels(ecg_leads,fs,ecg_names))
 #a = np.array([[1,1.2],[1,3,2],[4,4,4]])
 #print(len(a[0]))
-detectors = Detectors(fs)
-rmssd = np.array([])
-for idx, ecg_lead in enumerate(ecg_leads):
-     
-    if idx == 3:
-        r_peaks = detectors.swt_detector(ecg_lead) 
-        peak_to_peak_diff = (np.diff(r_peaks))
-        results=td.rmssd(rpeaks=[0,1,2])
-        print("a:", results['rmssd'])
-        #print("b:", results['pnn20'])        
+#detectors = Detectors(fs)
+#rmssd = np.array([])
+#for idx, ecg_lead in enumerate(ecg_leads):
+#     
+#    if idx == 3:
+#        r_peaks = detectors.swt_detector(ecg_lead) 
+#        peak_to_peak_diff = (np.diff(r_peaks))
+#        results=td.rmssd(rpeaks=[0,1,2])
+#        print("a:", results['rmssd'])
+#        #print("b:", results['pnn20'])        
 
         
     #if len(ecg_lead)<9000:

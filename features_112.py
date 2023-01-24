@@ -20,8 +20,11 @@ import pyhrv.time_domain as td
 #ecg_leads,ecg_labels,fs,ecg_names = load_references()     # Importiere EKG-Dateien, zugehörige Diagnose, Sampling-Frequenz (Hz) und Name (meist fs=300 Hz)
 
 
-def features(ecg_leads,fs):
-
+def features(ecg_leads,fs, set = 2):
+    '''
+    set = 1: only the most gain bringing features 
+    set = 2: all features
+    '''
 
 
     detectors = Detectors(fs)                                 # Initialisierung des QRS-Detektors
@@ -56,12 +59,12 @@ def features(ecg_leads,fs):
     pNN20 = np.array([])                                      # Initialisierung des pNN20 Wertes (pyhrv - Version)
     
     ### FFT Initialisierung
-    N = ecg_leads[1].size                                     # Anzahl der Messungen (9000 in 30s, für jede Messung gleich, daher nur einemal berechnet).
+    N = 9000                                                  # Anzahl der Messungen (9000 in 30s, für jede Messung gleich, daher nur einemal berechnet).
     fs = 300                                                  # Gegebene Abtastfrequenz des Messung.
     T = 1.0/300.0                                             # Kalibrierung auf Sampel-Frequenz/Abtastungsrate (300Hz).
     fd = fs/N                                                 # Frequenzauflösung des Spektrumes der Messung. !Nyquistkriterium: Es können höchstens bis 150Hz aussagekräftige Informationen gewonnen werden!
-    t = np.linspace(0.0, N*T, N, endpoint=False);             # Initialisierung des Zeitbereiches (für jede Messung gleich, daher nur einemal berechnet).
-    xf = fftfreq(N, T)[:N//2];                                # Initialisierung des Frequenzbereiches (für jede Messung gleich, daher nur einemal berechnet).
+    t = np.linspace(0.0, N*T, N, endpoint=False)             # Initialisierung des Zeitbereiches (für jede Messung gleich, daher nur einemal berechnet).
+    xf = fftfreq(N, T)[:N//2]                                # Initialisierung des Frequenzbereiches (für jede Messung gleich, daher nur einemal berechnet).
 
 
     ### Wenn Testlauf, dann können in range(102,6000) Messungen gelöscht werden, welche dann nicht mehr verarbietet werden.
@@ -98,9 +101,7 @@ def features(ecg_leads,fs):
 
         if len(r_peaks)<3:                                    # Wenn zu wenige peaks detektiert
           r_peaks = [0,1,2]       # einfach gemacht 
-          if ecg_lead.size < 1500:
-            print("Könnten sie mir mitteilen wenn diese Benachrichtigung auftaucht:  ecg_lead.size= ", ecg_lead.size, "ecg.shape:", ecg_lead.shape)
-# 
+
           #ecg_lead=ecg_lead[1500::1]                          # Wir skippen die ersten 5 Sekunden ( weil manchmal am anfang das ecg fehlerhaft hohe werte annimmt; Ziel ist das skippen dieses Bereichs)
           #r_peaks = detectors.swt_detector(ecg_lead)          # Detektion auf gekürzten
           #
@@ -118,21 +119,21 @@ def features(ecg_leads,fs):
                                                               # Gesamt integ, weil unten direkt der gesamte freq. bereich normiert wird
 
         ### LowPass Filter
-        yf_lowPass = np.array([]);                            # Tiefpassfilter von Frequenz (0-450)*fd, dass entspricht (0-15)Hz.
+        yf_lowPass = np.array([])                            # Tiefpassfilter von Frequenz (0-450)*fd, dass entspricht (0-15)Hz.
         for i in range(0,450):
           yf_lowPass = np.append(yf_lowPass, r_yf[i])
           if math.isnan(r_yf[i]):
             print("error 1")
              
         ### BandPass Filter
-        yf_bandPass = np.array([]);                           # Bandpassfilter von Frequenz (451-3500)*fd, dass entspricht (15-116)Hz.
+        yf_bandPass = np.array([])                           # Bandpassfilter von Frequenz (451-3500)*fd, dass entspricht (15-116)Hz.
         for i in range(451,3500):
           yf_bandPass = np.append(yf_bandPass, r_yf[i])
           if math.isnan(r_yf[i]):
             print("error 2")
             
         ### HighPass Filter                                   # Hochpassfilter von Frequenz (3501-3999)*fd, dass entspricht (116-133)Hz.
-        yf_highPass = np.array([]);
+        yf_highPass = np.array([])
         for i in range(3501,3999):
           yf_highPass = np.append(yf_highPass, r_yf[i])
           if math.isnan(r_yf[i]):
@@ -211,16 +212,24 @@ def features(ecg_leads,fs):
         result_NN20 = td.nn20(peak_to_peak_diff)
         nn20 = np.append(nn20,result_NN20['nn20'])
         pNN20 = np.append(pNN20,result_NN20['pnn20'])
-
+        
 ###################
         if (idx % 100)==0:
           print("Features von: \t" + str(idx) + "\t EKG Signalen wurden verarbeitet.")
 
+        if(set==2):
+          ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
+          features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peaks_per_lowPass, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
+        if(set==1):
+          ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
+          features =np.transpose(np.array([ sdnn])) # nn20 ist stärkste
 
-    ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
-    features =np.transpose(np.array([  relativ_lowPass, relativ_highPass, relativ_bandPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peaks_per_lowPass, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
-                    # labels raus  --- max_ampl geaddet
+        print("yf:",ecg_lead.size)
+        print("yf:",yf.size)
+        print("yf:",yf.shape)
 
+        print("yf:",r_yf.size)
+        print("yf:",r_yf.shape)
     return features
 
     ####################################################################################    Plots
