@@ -11,7 +11,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import xgboost as xgb
-from xgboost import XGBClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import metrics                                     # for F1 score
 
 from wettbewerb import load_references
@@ -70,9 +70,9 @@ def HyperTest_XGB():
 
     ## Hyperparameter Setup ##
     # num_round                                      # Anzahl Boosting iterationen : useless if we use early stoppage
-    p1_range = np.linspace(3,11, num = 6)            # max depth     : Maximale tiefe der Bäume
+    p1_range = np.array(range(1,20))                 # max depth     : Maximale tiefe der Bäume
     p2_range = np.linspace(0,1, num = 10)            # eta           : learning rate     
-    p3_range = np.linspace(0,10, num = 11)           # gamma         : Minimum loss reduction required to make a further partition
+    p3_range = np.linspace(0,10, num = 11)           # gamma         : Minimum loss reduction required to make a further partition (just fyi)
     
     
     evallist = [(dtrain, 'train'), (dtest, 'eval')]            
@@ -137,8 +137,8 @@ def HyperTest_RF():
     ##### setup #####
 
     p1_range = np.arange(10,200,10)                   # n_estimators  : Anzahl Bäume
-    p2_range = np.arange(1,10,1)            # max features  : Anzahl maximal zu nutzender Feats     
-    p3_range = np.arange(0,2,1)                       # criterion     : 3 optionen für split Berechnung
+    p2_range = np.arange(1,16,1)            # max features  : Anzahl maximal zu nutzender Feats     
+    p3_range = np.arange(0,3,1)                       # criterion     : 3 optionen für split Berechnung
 
     p1_res = np.array([])
     p2_res = np.array([])
@@ -205,4 +205,152 @@ def HyperTest_RF():
 
 
 
-HyperTest_RF()
+####################### XGBoosting #############################
+
+def HyperTest_XGB():
+    ##### setup #####
+    dtrain = xgb.DMatrix(X_train, label=y_train)     # train
+    dtest = xgb.DMatrix(X_test, label=y_test)        # test
+
+    ## Hyperparameter Setup ##
+    # num_round                                      # Anzahl Boosting iterationen : useless if we use early stoppage
+    p1_range = np.array(range(1,20))                 # max depth     : Maximale tiefe der Bäume
+    p2_range = np.linspace(0,1, num = 10)            # eta           : learning rate     
+    p3_range = np.linspace(0,10, num = 11)           # gamma         : Minimum loss reduction required to make a further partition (just fyi)
+    
+    
+    evallist = [(dtrain, 'train'), (dtest, 'eval')]            
+    
+   
+    p1_res = np.array([])
+    p2_res = np.array([])
+    p3_res = np.array([])
+    p4_res = np.array([])                            # best Iteration
+
+    F1 = np.array([])
+    acc = np.array([])
+
+    for p1 in p1_range:
+        for p2 in p2_range:
+            for p3 in p3_range:
+                param = {'max_depth': int(p1), 'eta': p2, 'objective': 'binary:hinge', 'gamma': p3}       # param für das Modell      (max depth 5)
+
+
+                bst = xgb.train( param, dtrain, 20, evals=evallist, early_stopping_rounds = 4) 
+                #https://xgboost.readthedocs.io/en/stable/python/python_api.html#xgboost.train
+
+                #bst_best_iteration = bst.best_iteration()    
+
+                y_pred = bst.predict(dtest)             
+                y_prediction = [str(round(value)) for value in y_pred]
+
+                p1_res = np.append(p1_res, p1)
+                p2_res = np.append(p2_res, p2)
+                p3_res = np.append(p3_res, p3)
+                #p4_res = np.append(p4_res, bst_best_iteration)
+
+                F1 = np.append(F1, metrics.f1_score(y_test, y_prediction, average='micro'))
+                acc = np.append(acc, metrics.accuracy_score(y_test, y_prediction))
+
+    optimal_indice = np.argmax(F1)
+    F1_opt = F1[optimal_indice]
+    p1_opt = p1_res[optimal_indice]
+    p2_opt = p2_res[optimal_indice]
+    p3_opt = p3_res[optimal_indice]
+    #p4_opt = p4_res[optimal_indice]
+    acc_opt = acc[np.argmax(acc)]
+
+    print("P1_optimal   (max_depth):",p1_opt)
+    print("P2_optimal   (eta):",p2_opt)
+    print("P3_optimal   (gamma):",p3_opt)
+    #print("P4_optimal   (iteration):",p4_opt)
+    
+    print("###### Optimal Training results: ")    
+    print("Max Accuracy:",acc_opt)
+    print("Max F1:",F1_opt)
+
+#################################################################################################################  
+
+
+
+
+
+###################### k - nearest neighbours ###################
+def HyperTest_kNN():
+    """_summary_
+    """
+    ##### setup #####
+
+    p1_range = np.arange(1,20,1)                   # n_neighbors  : Anzahl benachbarter Pkte ( der Faktor k bei kNN) 
+    p2_range = np.array([1,2])            # max features  : Anzahl maximal zu nutzender Feats     
+    p3_range = np.arange(0,2,1)                       # criterion     : 3 optionen für split Berechnung
+
+    p1_res = np.array([])
+    p2_res = np.array([])
+    p3_res = np.array([])
+
+
+    F1 = np.array([])
+    acc = np.array([])
+
+    for p1 in p1_range:
+        for p2 in p2_range:
+            for p3 in p3_range:
+                if p3==0:
+                    crit='uniform'                 # 
+                if p3==1:
+                    crit='distance'             # 
+
+                print("p3 :", p3)
+                print("crit :", crit)
+                # max_depth: of trees; -- max features: None = alle
+                model = KNeighborsClassifier(n_neighbors = p1, p=p2, weights = crit)
+                
+                print(y_train)
+                
+                model.fit(X_train,y_train)
+
+                y_pred = model.predict(X_test)
+                print(y_pred)                
+                print("test1")
+                #y_prediction = [str(value) for value in y_pred]
+
+                print("################################################################################################")
+      
+                p1_res = np.append(p1_res, p1)
+                p2_res = np.append(p2_res, p2)
+                p3_res = np.append(p3_res, p3)
+                #p4_res = np.append(p4_res, bst_best_iteration)
+
+                F1 = np.append(F1, metrics.f1_score(y_test, y_pred, average='micro'))
+                acc = np.append(acc, metrics.accuracy_score(y_test, y_pred))
+
+    optimal_indice = np.argmax(F1)
+    F1_opt = F1[optimal_indice]
+    p1_opt = p1_res[optimal_indice]
+    p2_opt = p2_res[optimal_indice]
+    p3_opt = p3_res[optimal_indice]
+    #p4_opt = p4_res[optimal_indice]
+    acc_opt = acc[np.argmax(acc)]
+
+    print("P1_optimal   (n_neighbours):",p1_opt)
+    print("P2_optimal   (p):",p2_opt)
+    print("P3_optimal   (criterion):",p3_opt)
+    #print("P4_optimal   (iteration):",p4_opt)
+    
+    print("###### Optimal Training results: ")    
+    print("Max Accuracy:",acc_opt)
+    print("Max F1:",F1_opt)
+
+
+
+
+###################################################
+
+
+
+#HyperTest_RF()                 ## nochmal testen ab logloss nicht als option betrachtet
+
+#HyperTest_XGB()
+
+HyperTest_kNN()

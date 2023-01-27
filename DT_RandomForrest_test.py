@@ -1,4 +1,8 @@
-# Test der Decision Trees
+# -*- coding: utf-8 -*-
+""" 
+Test der Decision Trees
+hier F1: 0.960999(0.961)  -- 0.959171(0.959)
+"""
 
 #import csv
 #import scipy.io as sio
@@ -9,7 +13,7 @@ import pickle
 
 # evaluate random forest algorithm for classification
 import numpy as np
-from sklearn.datasets import make_classification
+from sklearn import tree
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_predict
@@ -34,7 +38,7 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs);                 
+features = features(ecg_leads,fs,1);                 
 
 
 ################################################################## Change labels to 1 and 0
@@ -68,7 +72,7 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 ##################################################################  Modell und Training 
 
-model = RandomForestClassifier(n_estimators= 20, max_features=7, criterion = "entropy")
+model = RandomForestClassifier(n_estimators= 160, max_features=5, criterion = "entropy") # 160, 5, entropy - 0.971 ; (80, 6 = 0.9567) -- alt: 20,7 = 0,9561
 
 model.fit(X_train,y_train)
 
@@ -88,8 +92,8 @@ Predictions = model.predict(X_test)
 
 # Printen für uns                                                    
 print("################")
-print(Predictions)
-print("################")
+print(Predictions)                              # [1. 0. 0. ..]
+print("######### Random Forrest #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
 print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
@@ -102,12 +106,16 @@ print('#####################')
 
 #print(n_f1)
 
-print("Saving...")
+########################### Plotting:
 
 
-########################## save model
-#filename = "RF_Model.pickle"
-#
-#pickle.dump(model, open(filename, "wb"))
-#
+
+########################### save model
+
+#print("Saving...")
+
+filename = "RF_model_ensemble.pickle"
+
+pickle.dump(model, open(filename, "wb"))
+
 print("----done------")
