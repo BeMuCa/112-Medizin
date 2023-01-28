@@ -45,34 +45,66 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 #------------------------------------------------------------------------------
 # Euer Code ab hier  
     
-    
+    Predictions_array = np.array([])    
 
 ########################### Calculate and load feature out of the data ######################################################## 
 
     features = features_112.features(ecg_leads,fs)
 
 ########################### Use features and trained model to predict ########################################################
-    
+
+    ##################           ENSEMBLE             #########################
+
+    if(model_name == 'Ensemble'):
+        ## RF
+        RF = pickle.load(open('RF_Model.pickle', "rb"))
+        prediction_RF = RF.predict(features)
+
+        ## xgb
+        GB = xgb.Booster()
+        GB.load_model(fname = 'GBoosting_model.json')
+        dfeat = xgb.DMatrix(features) 
+        prediction_xgb = GB.predict(dfeat) 
+
+        ## kNN
+        kNN = pickle.load(open('kNN_model.pickle', "rb"))            # load model
+        prediction_kNN = kNN.predict(features)
+
+        ## SVM
+        SVM = pickle.load(open('SVM_Model.pickle', "rb"))
+        prediction_SVM = SVM.predict(features)
+
+        ## Ensemble calculation
+        for nr,y in enumerate(prediction_RF):
+            if (prediction_xgb[nr] + y + prediction_kNN[nr]) == 2 or (prediction_xgb[nr] + y + prediction_kNN[nr]) == 3:
+                Predictions_array = np.append(Predictions_array,1)
+            else:
+                Predictions_array = np.append(Predictions_array,0)
+
     ##################           RF             #########################
     
     if(model_name == 'RF_Model.pickle'):
-        loaded_model = pickle.load(open(model_name, "rb"))            # load model
-
-        Predictions_array = loaded_model.predict(features)          # predict
-    
-    
-    
+        loaded_model = pickle.load(open(model_name, "rb"))
+        Predictions_array = loaded_model.predict(features)
 
     ##################          XGB             #########################
     if(model_name == 'GBoosting_model.json'):
         bst = xgb.Booster()
-        bst.load_model(fname = model_name)              ## load model
+        bst.load_model(fname = model_name)
+        dtest = xgb.DMatrix(features)
+        Predictions_array = bst.predict(dtest)
 
-        dtest = xgb.DMatrix(features)                   ## DMatrix format is needed
+    ##################           kNN             #########################
+    
+    if(model_name == 'RF_Model.pickle'):
+        loaded_model = pickle.load(open(model_name, "rb"))
+        Predictions_array = loaded_model.predict(features)
         
-        Predictions_array = bst.predict(dtest)                     ## predict based on the features
-
-
+    ##################           SVM             #########################
+    
+    if(model_name == 'RF_Model.pickle'):
+        loaded_model = pickle.load(open(model_name, "rb"))
+        Predictions_array = loaded_model.predict(features)
 
 
 ############################       Change from 0,1 to N,A    ############################################################

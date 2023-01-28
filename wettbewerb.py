@@ -11,7 +11,8 @@ import csv
 import scipy.io as sio
 import numpy as np
 import os
-
+# '../training' -- normal
+# raoul : 'C:\\Users\\Raoul\\112-Trainig\\training'
 
 ### Achtung! Diese Funktion nicht veraendern.
 
