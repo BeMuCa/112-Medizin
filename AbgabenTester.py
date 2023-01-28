@@ -94,9 +94,7 @@ def test(model_name : str='GBoosting_model.json'):
         
         Predictions_array = bst.predict(dtest)                     ## predict based on the features
         
-    ######################################################################
-    
-    print("DAS SIND DIE PREDICITONS", Predictions_array)
+ 
 
     ######################################################################## UMWANDELN DER PREDICTS ZU 'A' und 'N'
     pred = np.array([], dtype=object)
@@ -109,7 +107,10 @@ def test(model_name : str='GBoosting_model.json'):
             pred = np.append(pred,'A')  # flimmern = 1,A
             
     
+       ######################################################################
     
+    print("DAS SIND DIE PREDICITONS", pred)
+    print("DAS SIND DIE WAHREN WERTE", labels)
 
 ##################################################################  Performance berechnung 
 

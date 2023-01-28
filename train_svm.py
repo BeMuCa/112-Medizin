@@ -10,6 +10,7 @@ import math
 import features_112
 from sklearn.svm import LinearSVC;
 from sklearn.svm import SVR;
+from sklearn.svm import SVC;
 from sklearn.svm import LinearSVR;
 from sklearn.model_selection import train_test_split;
 from sklearn.model_selection import cross_val_predict;
@@ -17,6 +18,7 @@ from sklearn import metrics;
 from numpy import genfromtxt;
 from sklearn.pipeline import Pipeline;
 from sklearn.preprocessing import StandardScaler;
+from sklearn.model_selection import cross_val_score;
 
 
 ecg_leads,ecg_labels,fs,ecg_names = load_references();
@@ -64,38 +66,41 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 ##################################################################  Modell und Training 
 model = Pipeline([
     ("scaler", StandardScaler()),
-    ("svr", SVR(kernel = "poly", degree=2,C=100,epsilon=0.1))
+    ("svc", SVC(kernel = "poly", degree=3,C=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 # model = SVR(kernel = "poly", degree=2,C=100,epsilon=0.1);
 # model = LinearSVR(epsilon=1.5);
 model.fit(X_train,y_train);
 
-##################################################################  Prediction
+#################################################################  Prediction
 Predictions = np.array([], dtype=object)
 Predictions = model.predict(X_test)         
-np.savetxt("predictions.csv", Predictions, delimiter=",")
+#np.savetxt("predictions.csv", Predictions, delimiter=",")
 #np.savetxt("y_test.csv", y_test, delimiter=",")
 #Predictions = Predictions.astype(int)
 #Predictions = Predictions.astype(string)
-Predictions = np.rint(Predictions)
-Predictions = Predictions.astype(int)
-print(y_test.dtype)
-print(Predictions.dtype)
-for i in range(0,Predictions.size):
-    if Predictions[i] >= 1 or Predictions[i] <= -1:
-        Predictions[i] = '1';
-    else:
-        Predictions[i] = '0';
-np.savetxt("predictions.csv", Predictions, delimiter=",")
-Predictions = Predictions.astype(object)
-for i in range(0,Predictions.size):
-    if Predictions[i] >= 1 or Predictions[i] <= -1:
-        Predictions[i] = '1';
-    else:
-        Predictions[i] = '0';
-Predictions = Predictions.astype(object)
+#Predictions = np.rint(Predictions)
+# Predictions = Predictions.astype(int)
+# print(y_test.dtype)
+# print(Predictions.dtype)
+# for i in range(0,Predictions.size):
+#     if Predictions[i] >= 1 or Predictions[i] <= -1:
+#         Predictions[i] = '1';
+#     else:
+#         Predictions[i] = '0';
+# np.savetxt("predictions.csv", Predictions, delimiter=",")
+# Predictions = Predictions.astype(object)
+# for i in range(0,Predictions.size):
+#     if Predictions[i] >= 1 or Predictions[i] <= -1:
+#         Predictions[i] = '1';
+#     else:
+#         Predictions[i] = '0';
+# Predictions = Predictions.astype(object)
 # Printen für uns                                                    
 print("################")
+print('labels:')
+print(y_test)
+print('predicitons:')
 print(Predictions)
 print("################")
 
@@ -119,3 +124,11 @@ print("Saving...")
 #pickle.dump(model, open(filename, "wb"))
 #
 print("----done------")
+print('#####################')
+print('Crossvalidation:')
+model_cross = Pipeline([
+    ("scaler", StandardScaler()),
+    ("svc", SVC(kernel = "poly", degree=3,C=50)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ])
+scores = cross_val_score(model_cross, features, labels, cv = 10)
+print(scores)
