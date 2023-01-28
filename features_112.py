@@ -226,12 +226,6 @@ def features(ecg_leads,fs, set = 2):
           ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
           features =np.transpose(np.array([ sdnn])) # nn20 ist stärkste
 
-        print("yf:",ecg_lead.size)
-        print("yf:",yf.size)
-        print("yf:",yf.shape)
-
-        print("yf:",r_yf.size)
-        print("yf:",r_yf.shape)
     return features
 
     ####################################################################################    Plots
