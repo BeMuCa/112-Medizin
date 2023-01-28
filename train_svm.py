@@ -34,10 +34,10 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 
 ########################### Calculate the features ######################################################
 
-#features = features_112.features(ecg_leads,fs);
+features = features_112.features(ecg_leads,fs)
 
 ### loading calculated features
-features = genfromtxt('learningfeatures.csv', delimiter=',')
+#features = genfromtxt('learningfeatures.csv', delimiter=',')
 
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
