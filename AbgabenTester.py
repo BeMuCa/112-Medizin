@@ -18,7 +18,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from wettbewerb import load_references
 from features_112 import features
-
+from numpy import genfromtxt;
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
 
@@ -45,8 +45,8 @@ fail_label = np.array([], dtype=object)                # Array für labels mit ~
     
 
 ########################### Calculate the features ######################################################
-
-features = features(ecg_leads,fs)
+features = genfromtxt('learningfeatures.csv', delimiter=',')
+#features = features(ecg_leads,fs)
 print("FEATURES DONE")
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
