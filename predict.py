@@ -76,7 +76,7 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 
         ## Ensemble calculation
         for nr,y in enumerate(prediction_RF):
-            if (prediction_xgb[nr] + y + prediction_kNN[nr]) == 2 or (prediction_xgb[nr] + y + prediction_kNN[nr]) == 3:
+            if (prediction_xgb[nr] + y + prediction_SVM[nr]) == 2 or (prediction_xgb[nr] + y + prediction_SVM[nr]) == 3:
                 Predictions_array = np.append(Predictions_array,1)
             else:
                 Predictions_array = np.append(Predictions_array,0)
