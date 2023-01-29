@@ -96,15 +96,15 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 
     ##################           kNN             #########################
     
-    if(model_name == 'RF_Model.pickle'):
-        loaded_model = pickle.load(open(model_name, "rb"))
-        Predictions_array = loaded_model.predict(features)
+    if(model_name == 'kNN_Model.pickle'):
+        kNN = pickle.load(open(model_name, "rb"))
+        Predictions_array = kNN.predict(features)
         
     ##################           SVM             #########################
     
-    if(model_name == 'RF_Model.pickle'):
-        loaded_model = pickle.load(open(model_name, "rb"))
-        Predictions_array = loaded_model.predict(features)
+    if(model_name == 'SVM_Model.pickle'):
+        SVM = pickle.load(open(model_name, "rb"))
+        Predictions_array = SVM.predict(features)
 
 
 ############################       Change from 0,1 to N,A    ############################################################
