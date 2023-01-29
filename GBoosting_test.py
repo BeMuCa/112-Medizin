@@ -41,7 +41,7 @@ Predictions_boost = np.array([], dtype=object)          # Array für Prediction
 
 ########################### Calculate the features ######################################################
 
-features = features(ecg_leads,fs,1)          #   --> das will er nicht checken auch mit methoden import
+features = features(ecg_leads,fs)          #   --> das will er nicht checken auch mit methoden import
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -123,6 +123,6 @@ print("################")
 
 print("Saving...")
 
-bst.save_model('GBoosting_model_ensemble.json')
+bst.save_model('GBoosting_model.json')
 
 print("-----DONE-----")

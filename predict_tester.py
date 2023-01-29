@@ -17,6 +17,7 @@ from train import RandomForrest_112
 import features_112 as features_112
 import xgboost as xgb
 from xgboost import Booster
+from scipy.fft import fft
 
 ############# nur für tester:
 
@@ -108,52 +109,42 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
         
 ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
+
+#
+##features = features_112.features(ecg_leads,fs,1)
+#try:
+#    for idx, ecg_lead in enumerate(ecg_leads):
+#
+#        if len(ecg_lead)<9000:
+#            print("alte größe", ecg_lead.size)
+#            teiler = 9000//len(ecg_lead)                       # 2999 ecgs zb -> Teiler= 3(weil gerundet) -> ecgs werden mit 2 weiteren ecgs erweitert
+#            for i in range (0,teiler):                         # -> 2999*3= 8997; 
+#              ecg_lead = np.append(ecg_lead, ecg_lead)
+#            print("Neue größe", ecg_lead.size, " der Teiler war:", teiler, "der index:", idx)
+#        #
+#        if len(ecg_lead)>9000:
+#            print("alte größe", ecg_lead.size, "der index:", idx)
+#            index = []
+#            index.extend(range(9000,ecg_lead.size))
+#
+#            ecg_lead= np.delete(ecg_lead, index)
+#        #
+#            print("Neue größe", ecg_lead.size)        
+#        else:
+#            print(ecg_lead.size, "der else fall ---------------")
+
 sdnn = np.array([])
-rmssd_neu = np.array([])
-peak_diff_mean = np.array([])
-a = [0,1,2]
-peak_to_peak_diff = (np.diff(a))
-print("peak2peak:",peak_to_peak_diff)
-sdnn = np.append(sdnn ,np.std(np.diff(a)/fs*1000))
-print("sdnn:",sdnn)
-result_rmssd = td.rmssd(peak_to_peak_diff)
-rmssd_neu = np.append(rmssd_neu ,result_rmssd['rmssd'])
-print("rmssd:", rmssd_neu )
-peak_diff_mean = np.append(peak_diff_mean, np.mean(peak_to_peak_diff))
-print(peak_diff_mean)
-
-features = features_112.features(ecg_leads,fs,1)
-
-#print(predict_labels(ecg_leads,fs,ecg_names))
-#a = np.array([[1,1.2],[1,3,2],[4,4,4]])
-#print(len(a[0]))
-#detectors = Detectors(fs)
-#rmssd = np.array([])
-#for idx, ecg_lead in enumerate(ecg_leads):
-#     
-#    if idx == 3:
-#        r_peaks = detectors.swt_detector(ecg_lead) 
-#        peak_to_peak_diff = (np.diff(r_peaks))
-#        results=td.rmssd(rpeaks=[0,1,2])
-#        print("a:", results['rmssd'])
-#        #print("b:", results['pnn20'])        
-
-        
-    #if len(ecg_lead)<9000:
-    #    print("alte größe", ecg_lead.size)
-    #    teiler = 9000//len(ecg_lead)                       # 2999 ecgs zb -> Teiler= 3(weil gerundet) -> ecgs werden mit 2 weiteren ecgs erweitert
-    #    for i in range (0,teiler):                         # -> 2999*3= 8997; 
-    #      ecg_lead = np.append(ecg_lead, ecg_lead)
-    #    print("Neue größe", ecg_lead.size, " der Teiler war:", teiler, "der index:", idx)
-    ##
-    #if len(ecg_lead)>9000:
-    #    print("alte größe", ecg_lead.size, "der index:", idx)
-    #    index = []
-    #    index.extend(range(9000,ecg_lead.size))
-    #    
-    #    ecg_lead= np.delete(ecg_lead, index)
-    ##
-    #    print("Neue größe", ecg_lead.size)        
-    #else:
-    #    print(ecg_lead.size, "der else fall ---------------")
-
+N = 9000  
+for idx, ecg_lead in enumerate(ecg_leads):
+    if idx ==3:
+        print("------")
+        r_peaks = [0,1,2]
+        yf = fft(ecg_lead)                                    # Berechnung des komplexen Spektrums.
+        r_yf = 2.0/N * np.abs(yf[0:N//2])                     # Umwandlung in ein reelles Spektrum.
+        print('Die Transforation in den Frequenzbereich schlägt fehl!')
+        normier_faktor = (np.sum(r_yf))                     # Inverses Integral über Frequenzbereich  
+                                                            # Gesamt integ, weil unten direkt der gesamte freq. bereich normiert wird
+        yf_lowPass = np.array([])                            # Tiefpassfilter von Frequenz (0-450)*fd, dass entspricht (0-15)Hz.
+        result_NN50 = td.nn50([1,1])
+        #nn50 = np.append(nn50, )
+        print(result_NN50['pnn50'])

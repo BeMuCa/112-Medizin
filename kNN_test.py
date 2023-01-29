@@ -21,7 +21,7 @@ from sklearn import metrics                                     # for F1 score
 
 from wettbewerb import load_references
 from features_112 import features
-
+from numpy import genfromtxt;
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
 
@@ -36,7 +36,8 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs,1);                 
+features = features(ecg_leads,fs)
+#features = genfromtxt('learningfeatures_16.csv', delimiter=',')
 
 ################################################################## Change labels to 1 and 0
 
@@ -103,12 +104,14 @@ print('#####################')
 
 #print(n_f1)
 
+scores = cross_val_score(model, features, labels, cv = 10)
+print(scores)
 
 ########################### save model
 
 print("Saving...")
 
-filename = "kNN_model_ensemble.pickle"
+filename = "kNN_model.pickle"
 
 pickle.dump(model, open(filename, "wb"))
 

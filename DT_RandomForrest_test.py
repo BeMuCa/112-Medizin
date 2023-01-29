@@ -23,7 +23,7 @@ from sklearn import metrics                                     # for F1 score
 
 from wettbewerb import load_references
 from features_112 import features
-
+from numpy import genfromtxt;
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
 
@@ -38,8 +38,8 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs,1);                 
-
+features = features(ecg_leads,fs);                 
+#features = genfromtxt('learningfeatures_16.csv', delimiter=',')
 
 ################################################################## Change labels to 1 and 0
 
@@ -100,6 +100,9 @@ print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 
 print('#####################')
 
+scores = cross_val_score(model, features, labels, cv = 10)
+print(scores)
+
 #print('Accuracy: %.3f (%.3f)' % (np.mean(n_accuracy), np.std(n_accuracy)))                # Mittelwert und Standartdeviation
 
 #print('Der F1 score: \n')
@@ -112,9 +115,9 @@ print('#####################')
 
 ########################### save model
 
-#print("Saving...")
+print("Saving...")
 
-filename = "RF_model_ensemble.pickle"
+filename = "RF_model.pickle"
 
 pickle.dump(model, open(filename, "wb"))
 

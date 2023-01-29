@@ -75,8 +75,12 @@ prediction_xgb = bst.predict(dtest)
 kNN = pickle.load(open('kNN_model.pickle', "rb"))            # load model
 prediction_kNN = kNN.predict(X_test_boost)
 
+## SVM
 
-############### Ensemble:
+SVM = pickle.load(open('SVM_model.pickle', "rb"))            # load model
+prediction_SVM = SVM.predict(X_test_boost)
+
+############### Ensemble:                                                               ## HIER ENTSCHEIDEN OB SVM ODER KNN REINKOMMT
 """Wir kriegen in der Prediction_xx eine Liste voll mit den """
 
 prediction_Ensemble = np.array([])
@@ -91,6 +95,8 @@ prediction_Ensemble_end = np.array([], dtype=object)
 prediction_xgb_end = np.array([], dtype=object)
 prediction_kNN_end = np.array([], dtype=object)
 prediction_RF_end = np.array([], dtype=object)
+prediction_SVM_end = np.array([], dtype=object)
+
 
 for nr,y in enumerate(prediction_Ensemble):                           
     if prediction_Ensemble[nr] == 0. :                   
@@ -116,6 +122,12 @@ for nr,y in enumerate(prediction_RF):
     if prediction_RF[nr] == 1. :
         prediction_RF_end = np.append(prediction_RF_end,'A')  # flimmern = 1,A
         
+for nr,y in enumerate(prediction_SVM):                           
+    if prediction_SVM[nr] == 0. :                   
+        prediction_SVM_end = np.append(prediction_SVM_end,'N')  # normal = 0,N           
+    if prediction_SVM[nr] == 1. :
+        prediction_SVM_end = np.append(prediction_SVM_end,'A')  # flimmern = 1,A
+        
 
 ##################################################################  Performance berechnung 
 print(" ")
@@ -135,6 +147,12 @@ print("kNN:")
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_kNN_end))
 print("F1:" , metrics.f1_score(y_test_boost, prediction_kNN_end, average='micro'))
 print(" ")
+## SVM
+print("SVM:")
+print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_SVM_end))
+print("F1:" , metrics.f1_score(y_test_boost, prediction_SVM_end, average='micro'))
+print(" ")
+
 ## Ensemble
 print("-------------------------")
 print(" ")
