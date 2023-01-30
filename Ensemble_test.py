@@ -123,9 +123,9 @@ for nr,y in enumerate(prediction_RF):
         prediction_RF_end = np.append(prediction_RF_end,'A')  # flimmern = 1,A
         
 for nr,y in enumerate(prediction_SVM):                           
-    if prediction_SVM[nr] == 0. :                   
+    if prediction_SVM[nr] == '0' :                   
         prediction_SVM_end = np.append(prediction_SVM_end,'N')  # normal = 0,N           
-    if prediction_SVM[nr] == 1. :
+    if prediction_SVM[nr] == '1' :
         prediction_SVM_end = np.append(prediction_SVM_end,'A')  # flimmern = 1,A
         
 
