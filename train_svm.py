@@ -19,6 +19,7 @@ from numpy import genfromtxt;
 from sklearn.pipeline import Pipeline;
 from sklearn.preprocessing import StandardScaler;
 from sklearn.model_selection import cross_val_score;
+import pickle;
 
 
 ecg_leads,ecg_labels,fs,ecg_names = load_references();
@@ -34,10 +35,10 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 
 ########################### Calculate the features ######################################################
 
-features = features_112.features(ecg_leads,fs)
+#features = features_112.features(ecg_leads,fs)
 
 ### loading calculated features
-#features = genfromtxt('learningfeatures.csv', delimiter=',')
+features = genfromtxt('learningfeatures.csv', delimiter=',')
 
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
@@ -66,7 +67,7 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 ##################################################################  Modell und Training 
 model = Pipeline([
     ("scaler", StandardScaler()),
-    ("svc", SVC(kernel = "poly", degree=3,C=1)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ("svc", SVC(kernel = "poly", degree=3,C=50)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 # model = SVR(kernel = "poly", degree=2,C=100,epsilon=0.1);
 # model = LinearSVR(epsilon=1.5);
@@ -119,9 +120,9 @@ print("Saving...")
 
 
 ########################## save model
-#filename = "RF_Model.pickle"
+filename = "SVM_Modelle.pickle"
 #
-#pickle.dump(model, open(filename, "wb"))
+pickle.dump(model, open(filename, "wb"))
 #
 print("----done------")
 print('#####################')
