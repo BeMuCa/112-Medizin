@@ -73,13 +73,13 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
         ## SVM
         SVM = pickle.load(open('SVM_Model.pickle', "rb"))
         prediction_SVM = SVM.predict(features)
-
+        prediction_SVM = prediction_SVM.astype(float)
         ## Ensemble calculation
         for nr,y in enumerate(prediction_RF):
-            if (prediction_xgb[nr] + y + prediction_SVM[nr]) == 2 or (prediction_xgb[nr] + y + prediction_SVM[nr]) == 3:
-                Predictions_array = np.append(Predictions_array,1)
+            if (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 2 or (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 3 or (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 4:
+                 prediction_Ensemble = np.append(prediction_Ensemble,1)
             else:
-                Predictions_array = np.append(Predictions_array,0)
+                 prediction_Ensemble = np.append(prediction_Ensemble,0)
 
     ##################           RF             #########################
     
@@ -105,6 +105,7 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
     if(model_name == 'SVM_Model.pickle'):
         SVM = pickle.load(open(model_name, "rb"))
         Predictions_array = SVM.predict(features)
+        Predictions_array = Predictions_array.astype(float)
 
 
 ############################       Change from 0,1 to N,A    ############################################################
