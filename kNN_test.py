@@ -109,10 +109,10 @@ print(scores)
 
 ########################### save model
 
-print("Saving...")
-
-filename = "kNN_model.pickle"
-
-pickle.dump(model, open(filename, "wb"))
-
-print("----done------")
+#print("Saving...")
+#
+#filename = "kNN_model.pickle"
+#
+#pickle.dump(model, open(filename, "wb"))
+#
+#print("----done------")
