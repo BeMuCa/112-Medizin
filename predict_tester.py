@@ -158,27 +158,28 @@ from scipy.stats import skew
 
 # Calculate the skewness
 
+#
+#i =0
+#
+#def log_transform(data):
+#    log_transformed = np.log(data)
+#    return log_transformed
+#
+#log_transformed =[]
+#data =  [6.79180193e-01 ,3.92650864e-03, 3.11317547e-01, 8.06415077e+01,
+# 1.03825883e+02, 1.87000000e+02 ,5.00000000e+01 ,2.00000000e+00,
+# 1.80979592e+02 ,5.25907945e+01 ,5.30082541e+01 ,3.14705483e+01,
+# 3.90000000e+01 ,2.20000000e+01 ,8.12500000e+01 ,4.58333333e+01]
+#skewness = skew(data)
+#print("erste:",skewness)
+#while(0.5<skewness or skewness<-0.5):
+#    data = log_transform(data)
+#    print("iteration:",i,"werte:",data,"skew:",skew(data) )
+#    skewness = skew(data)
+#    i = i+1
 
-i =0
-
-def log_transform(data):
-    log_transformed = np.log(data)
-    return log_transformed
-
-log_transformed =[]
-data =  [6.79180193e-01 ,3.92650864e-03, 3.11317547e-01, 8.06415077e+01,
- 1.03825883e+02, 1.87000000e+02 ,5.00000000e+01 ,2.00000000e+00,
- 1.80979592e+02 ,5.25907945e+01 ,5.30082541e+01 ,3.14705483e+01,
- 3.90000000e+01 ,2.20000000e+01 ,8.12500000e+01 ,4.58333333e+01]
-skewness = skew(data)
-print("erste:",skewness)
-while(0.5<skewness or skewness<-0.5):
-    data = log_transform(data)
-    print("iteration:",i,"werte:",data,"skew:",skew(data) )
-    skewness = skew(data)
-    i = i+1
-
-
+a = np.linspace(0,0.3, num = 5) 
+print(a)
 #print("Skewed data: ", skewness)
 ##print("Log transformed data: ", log_transformed)
 #print("Skewness nach trafo: ", skew(log_transform(data)))

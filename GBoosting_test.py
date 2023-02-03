@@ -42,8 +42,8 @@ Predictions_boost = np.array([], dtype=object)          # Array für Prediction
 
 ########################### Calculate the features ######################################################
 
-features = features(ecg_leads,fs)          #   --> das will er nicht checken auch mit methoden import
-#features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+#features = features(ecg_leads,fs)          #   --> das will er nicht checken auch mit methoden import
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -66,7 +66,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)
 
 ###########################  Trainings und Test Satz Split ###################################################
   
-X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.4, random_state=7)
+X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.2, random_state=1)
 
 ############################### Modell und Training 
 
@@ -76,19 +76,20 @@ dtest = xgb.DMatrix(X_test_boost, label=y_test_boost) # features und labels in D
 #### parameters:
 
 evallist = [(dtrain, 'train'), (dtest, 'eval')]             # evaluieren des Trainings
-num_round = 30                                              # ab 21,22,23 .. alle gleich
-param = {'max_depth': 16, 'eta': 0.111111111, 'objective': 'binary:hinge', 'gamma': 7.0, 'subsample':1}       # param für das Modell      (max depth 5)
+num_round = 55                                              # ab 21,22,23 .. alle gleich
+param = {'max_depth': 16, 'eta': 0.3, 'objective': 'binary:hinge', 'gamma': 5.0, 'subsample':0.75,'lambda':5.0,'alpha':0.3}       # param für das Modell      (max depth 5)
 # 16,0.11,7.0 = 0.9597 -- altt:10;0.1111;7.0 = 0.9597(0.96)
 
 ######### eigentliche training:
 
-bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds = 4)        # xgb.train returns booster model
+bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds = 3)        # xgb.train returns booster model
 
 ############################### FEATURE TESTING 
 ## choose 1:
 
 featureScore_weight = bst.get_score( importance_type='weight')    #the number of times a feature is used to split the data across all trees. 
 featureScore_gain = bst.get_score( importance_type='gain')        #the average gain across all splits the feature is used in.
+# IMPORTANCE TYPE: https://towardsdatascience.com/be-careful-when-interpreting-your-features-importance-in-xgboost-6e16132588e7
 
 ## plot the weight
 keys_weight = featureScore_weight.keys()
@@ -112,6 +113,7 @@ ax2.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
 ax2.set_title("Number of times used")
 ax3.bar(keys_weight, a, width=1, edgecolor="purple", linewidth=0.7)
 ax3.set_title("Gain/Num")
+ax1.axhline(y=5, color='red', linestyle='--')
 plt.show()
 
 ##################################################################  Prediction
@@ -133,6 +135,6 @@ print("################")
 
 print("Saving...")
 
-bst.save_model('GBoosting_model.json')
+bst.save_model('GB.json')
 
 print("-----DONE-----")

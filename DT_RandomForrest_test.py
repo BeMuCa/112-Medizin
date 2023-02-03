@@ -38,8 +38,8 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs);                 
-#features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+#features = features(ecg_leads,fs);                 
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 
 ################################################################## Change labels to 1 and 0
 
@@ -72,7 +72,7 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 ##################################################################  Modell und Training 
 
-model = RandomForestClassifier(n_estimators= 200, max_features=5, criterion = "entropy") # log loss or entropy : https://datascience.stackexchange.com/questions/67868/random-forest-and-log-loss-metric
+model = RandomForestClassifier(n_estimators= 30, max_features=5, criterion = "entropy") # log loss or entropy : https://datascience.stackexchange.com/questions/67868/random-forest-and-log-loss-metric
 # davor 160 - 5
 model.fit(X_train,y_train)
 
@@ -93,6 +93,7 @@ Predictions = model.predict(X_test)
 # Printen für uns                                                    
 print("################")
 #print(Predictions)                              # [1. 0. 0. ..]
+#print("---",y_test)
 print("######### Random Forrest #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))

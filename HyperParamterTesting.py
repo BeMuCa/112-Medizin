@@ -33,7 +33,7 @@ Predictions_boost = np.array([], dtype=object)          # Array für Prediction
 ######## Features #########
 
 #features = features(ecg_leads,fs)
-features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 
 ######## Label ############
 
@@ -138,13 +138,13 @@ def HyperTest_XGB_testing():
 
     ## Hyperparameter Setup ##
     # num_round                                      # Anzahl Boosting iterationen : useless if we use early stoppage
-    p1_range = np.array(range(1,20))                     # max depth     : Maximale tiefe der Bäume
-    p2_range = np.linspace(0,0.3, num = 10)              # eta           : learning rate  (lower= langsamer = weniger overfitten)   
-    p3_range = np.linspace(0,10, num = 11)               # gamma         : (je höher, je mehr regularisiert)(bei kleinem p1 gamma hoch) Minimum loss reduction required to make a further partition (just fyi)
-    p4_range = np.linspace(10,100, num = 10)               # number of boosting rounds = anzahl bäume (zu hoch=overfitting)
-    p5_range = np.linspace(0.5,1, num = 6)               # subsample (verhindert overfitting ) jeder iteration wird andere random feature genommen zum lernen
-    p6_range = np.linspace(1,5, num = 5)               # Lambda (L2 regularisierungswert, je höher je stärker regularisiert) default =1
-    p7_range = np.linspace(0,1, num = 5)                 # alpha (L1 reg. ) default 0
+    p1_range = np.array(range(16,17))                     # max depth     : Maximale tiefe der Bäume (größer besser)
+    p2_range = np.linspace(0.1,0.3, num = 5)              # eta           : learning rate  (lower= langsamer = weniger overfitten)   
+    p3_range = np.linspace(0,10, num = 3)               # gamma         : (je höher, je mehr regularisiert)(bei kleinem p1 gamma hoch) Minimum loss reduction required to make a further partition (just fyi)
+    p4_range = np.linspace(10,100, num = 3)               # number of boosting rounds = anzahl bäume (zu hoch=overfitting)
+    p5_range = np.linspace(0.5,1, num = 3)               # subsample (verhindert overfitting ) jeder iteration wird andere random feature genommen zum lernen
+    p6_range = np.linspace(1,5, num = 2)               # Lambda (L2 regularisierungswert, je höher je stärker regularisiert) default =1
+    p7_range = np.linspace(0,1, num = 2)                 # alpha (L1 reg. ) default 0
     evallist = [(dtrain, 'train'), (dtest, 'eval')]            
     
    
@@ -168,7 +168,7 @@ def HyperTest_XGB_testing():
                                 param = {'max_depth': int(p1), 'eta': p2, 'objective': 'binary:hinge', 'gamma': p3, 'subsample':p5, 'lambda':p6, 'alpha':p7}       # param für das Modell      (max depth 5)
 
 
-                                bst = xgb.train( param, dtrain, num_boost_round = int(p4) , evals=evallist, early_stopping_rounds = 3) 
+                                bst = xgb.train( param, dtrain, num_boost_round = int(p4)) 
                                 #https://xgboost.readthedocs.io/en/stable/python/python_api.html#xgboost.train
 
                                 #bst_best_iteration = bst.best_iteration()    
@@ -181,7 +181,9 @@ def HyperTest_XGB_testing():
                                 p3_res = np.append(p3_res, p3)
                                 p4_res = np.append(p4_res, p4)
                                 p5_res = np.append(p5_res, p5)
-
+                                p6_res = np.append(p6_res, p6)
+                                p7_res = np.append(p7_res, p7)
+                                
                                 print("max_depth:",p1,"eta:",p2,"gamma:",p3,"num boosting rounds:",p4)
                                 print("subsample size:", p5, " lambda:",p6,"alpha:", p7, "F1 score:",metrics.f1_score(y_test, y_prediction, average='micro') )
                                 print(" ")

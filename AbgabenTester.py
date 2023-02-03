@@ -45,7 +45,7 @@ fail_label = np.array([], dtype=object)                # Array für labels mit ~
     
 
 ########################### Calculate the features ######################################################
-features = genfromtxt('learningfeatures.csv', delimiter=',')
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 #features = features(ecg_leads,fs)
 print("FEATURES DONE")
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
@@ -94,16 +94,30 @@ def test(model_name : str='GBoosting_model.json'):
         
         Predictions_array = bst.predict(dtest)                     ## predict based on the features
         
- 
+    ##################           SVM             #########################    
+    if(model_name == 'SVM_model.pickle'):
+        print("----- Testing RF ... ------")
+        loaded_model = pickle.load(open(model_name, "rb"))            # load model
+
+        Predictions_array = loaded_model.predict(features)          # predict
+        Predictions_array = Predictions_array.astype(float)
+
+
+    ##################           NN             #########################    
+    if(model_name == 'NN_model.pickle'):
+        print("----- Testing RF ... ------")
+        loaded_model = pickle.load(open(model_name, "rb"))            # load model
+
+        Predictions_array = loaded_model.predict(features)          # predict
 
     ######################################################################## UMWANDELN DER PREDICTS ZU 'A' und 'N'
     pred = np.array([], dtype=object)
     
     for nr,y in enumerate(Predictions_array):                           
-        if y == 0. :                   
+        if y == 0. or y =='0':                   
             pred = np.append(pred,'N')  # normal = 0,N           
 
-        if y == 1. :
+        if y == 1. or y =='1':
             pred = np.append(pred,'A')  # flimmern = 1,A
             
     
@@ -120,5 +134,5 @@ def test(model_name : str='GBoosting_model.json'):
     print("F1:" , metrics.f1_score(labels, pred, average='micro'))
 
     
-test()
-#test('RF_Model.pickle')
+#test()
+test('SVM_model.pickle')

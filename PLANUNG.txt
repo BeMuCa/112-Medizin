@@ -15,3 +15,6 @@ OVERFITTING STUFF:      https://machinelearningmastery.com/learning-curves-for-d
 5. kNN?
 6. SVM
 7. Ensemble?
+
+
+Miro1: https://miro.com/app/board/uXjVPI7rmXo=/?share_link_id=495896891551

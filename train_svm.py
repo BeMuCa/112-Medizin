@@ -38,7 +38,7 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 #features = features_112.features(ecg_leads,fs)
 
 ### loading calculated features
-features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
@@ -62,7 +62,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 ##################################################################  Modell und Training 
 model = Pipeline([
@@ -119,17 +119,17 @@ print('#####################')
 print("Saving...")
 
 
-########################## save model
+######################### save model
 filename = "SVM_model.pickle"
 #
 pickle.dump(model, open(filename, "wb"))
 #
 print("----done------")
 print('#####################')
-print('Crossvalidation:')
-model_cross = Pipeline([
-    ("scaler", StandardScaler()),
-    ("svc", SVC(kernel = "poly", degree=3,C=50)) # 50 fittet am besten, eventuell overfittung? -> senken
-    ])
-scores = cross_val_score(model_cross, features, labels, cv = 10)
-print(scores)
+#print('Crossvalidation:')
+#model_cross = Pipeline([
+#    ("scaler", StandardScaler()),
+#    ("svc", SVC(kernel = "poly", degree=3,C=50)) # 50 fittet am besten, eventuell overfittung? -> senken
+#    ])
+#scores = cross_val_score(model_cross, features, labels, cv = 10)
+#print(scores)

@@ -16,7 +16,7 @@ import math
 import pyhrv.time_domain as td
 
 from scipy.stats import skew
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler,RobustScaler
 
 
 
@@ -29,13 +29,14 @@ def features(ecg_leads,fs, set = 2):
     '''
     set = 1: only the most gain bringing features 
     set = 2: all features
-    ------- We use all features + subsampling
+    ------- We use all features as they have the same average gain
     set = 3: minimized testing 1 ( to be tested)
     set = 4: delete bad feats 1 
     '''
     
     scaler = MinMaxScaler()                                   # initialisierung des Scalers
-
+    robust_scaler = RobustScaler()                            # initialisierung des robusten Scalers
+    
     detectors = Detectors(fs)                                 # Initialisierung des QRS-Detektors
 
     # Label-List
@@ -294,16 +295,27 @@ def features(ecg_leads,fs, set = 2):
         ## stärksten
         features =np.transpose(np.array([ nn20, nn50,pNN50, peak_diff_mean,pNN20])) # nn20 ist stärkste
       if(set==4):
-        ## Schlechtesten raus: 3,4,5,7
+        ## Schlechtesten raus: 3,4,5,
         features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, peaks_per_measure, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
     
     #### Skalierung der features :
-    scaler.fit(features)
-    # Transform the data
-    features_scaled = scaler.transform(features)
-    print("one scale=",features[4][0:20:1])
-    print("mit scale=",features_scaled[4][0:20:1])
-    
+# first the robust scale since its less sensitive to outliers
+    try:
+      features_robust_scaled = robust_scaler.fit_transform(features)
+    except:
+      features_robust_scaled = features
+
+# secondly the minmax scale to scale into range (0,1)
+    try:
+      features_scaled = scaler.fit_transform(features_robust_scaled)  # fit and transform in one step
+      # fit data
+      # features_scaled = scaler.fit(features_robust_scaled)
+      # Transform the data
+      #features_scaled = scaler.transform(features_robust_scaled)
+    except:
+      features_scaled = features
+
+
     return features_scaled
 
     #####################################################################################    Plots
