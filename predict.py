@@ -95,12 +95,12 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 
     ##################           RF             #########################
     
-    if(model_name == 'RF_Model.pickle'):
+    if(model_name == 'RF_model.pickle'):
         loaded_model = pickle.load(open(model_name, "rb"))
         Predictions_array = loaded_model.predict(features)
 
     ##################          XGB             #########################
-    if(model_name == 'GBoosting_model.json'):
+    if(model_name == 'GB_model.json'):
         bst = xgb.Booster()
         bst.load_model(fname = model_name)
         dtest = xgb.DMatrix(features)
@@ -115,6 +115,13 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
     ##################           SVM             #########################
     
     if(model_name == 'SVM_model.pickle'):
+        SVM = pickle.load(open(model_name, "rb"))
+        Predictions_array = SVM.predict(features)
+        Predictions_array = Predictions_array.astype(float)
+
+    ##################           NN             #########################
+    
+    if(model_name == 'NN_model.pickle'):
         SVM = pickle.load(open(model_name, "rb"))
         Predictions_array = SVM.predict(features)
         Predictions_array = Predictions_array.astype(float)
