@@ -135,6 +135,6 @@ print("################")
 
 print("Saving...")
 
-bst.save_model('GB.json')
+bst.save_model('GB_model.json')
 
 print("-----DONE-----")

@@ -85,7 +85,7 @@ def test(model_name : str='GBoosting_model.json'):
     
 
     ##################          XGB             #########################
-    if(model_name == 'GBoosting_model.json'):
+    if(model_name == 'GB_model.json'):
         print("----- Testing XGB ... ------")
         bst = xgb.Booster()
         bst.load_model(fname = model_name)              ## load model
