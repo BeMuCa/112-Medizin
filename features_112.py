@@ -15,6 +15,9 @@ from wettbewerb import load_references
 import math
 import pyhrv.time_domain as td
 
+from scipy.stats import skew
+from sklearn.preprocessing import MinMaxScaler
+
 
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
@@ -26,8 +29,12 @@ def features(ecg_leads,fs, set = 2):
     '''
     set = 1: only the most gain bringing features 
     set = 2: all features
+    ------- We use all features + subsampling
+    set = 3: minimized testing 1 ( to be tested)
+    set = 4: delete bad feats 1 
     '''
-
+    
+    scaler = MinMaxScaler()                                   # initialisierung des Scalers
 
     detectors = Detectors(fs)                                 # Initialisierung des QRS-Detektors
 
@@ -51,7 +58,7 @@ def features(ecg_leads,fs, set = 2):
     relativ_highPass = np.array([])                           # Initialisierung Relativer Anteil des Mittelfrequenzbandes an dem Gesamtspektrum.
     relativ_bandPass = np.array([])                           # Initialisierung Relativer Anteil des Hochfrequenzbandes an dem Gesamtspektrum.
     rmssd = np.array([])                                      # Initialisierung des RMSSD Wertes
-    
+    peaks = np.array([])                                      # init peak anzahl
   ## pyhrv:  
     rmssd_neu = np.array([])                                  # Initialisierung des RMSSD Wertes (pyhrv - Version)
     sdnn_neu = np.array([])                                   # Initialisierung des SDNN Wertes (pyhrv - Version)
@@ -267,18 +274,37 @@ def features(ecg_leads,fs, set = 2):
         print('Die Berechung der NN20 (pyhrv) + pNN20 (pyhrv) schlägt fehl!',idx)
         nn20 = np.append(nn20,0)
         pNN20 = np.append(pNN20,0.0)
+    
+    ################## skew checker         (unused)
+      peaks = np.append(peaks,len(r_peaks))         # anzahl peaks pro ecg ( mindestens 3)
+      #skewness = skew(peaks)
+      #print("skewness von peaks:", skewness)
     ################
+ 
       if (idx % 100)==0:
         print("Features von: \t" + str(idx) + "\t EKG Signalen wurden verarbeitet.")
+
       if(set==2):
         ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
         features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peaks_per_lowPass, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
       if(set==1):
         ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
         features =np.transpose(np.array([ sdnn])) # nn20 ist stärkste
-      #print('Messung: ',idx)
-  
-    return features
+      if(set==3):
+        ## stärksten
+        features =np.transpose(np.array([ nn20, nn50,pNN50, peak_diff_mean,pNN20])) # nn20 ist stärkste
+      if(set==4):
+        ## Schlechtesten raus: 3,4,5,7
+        features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, peaks_per_measure, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
+    
+    #### Skalierung der features :
+    scaler.fit(features)
+    # Transform the data
+    features_scaled = scaler.transform(features)
+    print("one scale=",features[4][0:20:1])
+    print("mit scale=",features_scaled[4][0:20:1])
+    
+    return features_scaled
 
     #####################################################################################    Plots
 

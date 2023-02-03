@@ -23,7 +23,7 @@ from sklearn import metrics                                     # for F1 score
 
 from wettbewerb import load_references
 from features_112 import features
-from numpy import genfromtxt;
+from numpy import genfromtxt
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
 
@@ -68,12 +68,12 @@ features = np.delete(features, fail_label.astype(int), axis=0)          # Delete
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 ##################################################################  Modell und Training 
 
-model = RandomForestClassifier(n_estimators= 160, max_features=5, criterion = "entropy") # 160, 5, entropy - 0.971 ; (80, 6 = 0.9567) -- alt: 20,7 = 0,9561
-
+model = RandomForestClassifier(n_estimators= 200, max_features=5, criterion = "entropy") # log loss or entropy : https://datascience.stackexchange.com/questions/67868/random-forest-and-log-loss-metric
+# davor 160 - 5
 model.fit(X_train,y_train)
 
 ##################################################################  Prediction
@@ -92,7 +92,7 @@ Predictions = model.predict(X_test)
 
 # Printen für uns                                                    
 print("################")
-print(Predictions)                              # [1. 0. 0. ..]
+#print(Predictions)                              # [1. 0. 0. ..]
 print("######### Random Forrest #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
