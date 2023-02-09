@@ -287,7 +287,7 @@ def features(ecg_leads,fs, set = 2):
 
       if(set==2):
         ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
-        features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peaks_per_lowPass, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
+        features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass,peaks_per_lowPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
       if(set==1):
         ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
         features =np.transpose(np.array([ sdnn])) # nn20 ist stärkste

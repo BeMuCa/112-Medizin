@@ -95,7 +95,7 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 
     ##################           RF             #########################
     
-    if(model_name == 'RF_model.pickle'):
+    if(model_name == 'RF_Model.pickle'):
         loaded_model = pickle.load(open(model_name, "rb"))
         Predictions_array = loaded_model.predict(features)
 
