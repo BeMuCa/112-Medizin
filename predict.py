@@ -105,6 +105,14 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
         bst.load_model(fname = model_name)
         dtest = xgb.DMatrix(features)
         Predictions_array = bst.predict(dtest)
+        
+        
+    ##################          XGB    ALT          #########################
+    if(model_name == 'GBoosting_model.json'):
+        bst = xgb.Booster()
+        bst.load_model(fname = model_name)
+        dtest = xgb.DMatrix(features)
+        Predictions_array = bst.predict(dtest)
 
     ##################           kNN             #########################
     

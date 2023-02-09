@@ -19,7 +19,7 @@ from wettbewerb import load_references
 from features_112 import features
 #import features_112 as features_112
 from numpy import genfromtxt
-
+from sklearn.model_selection import cross_val_score;
 import xgboost as xgb
 from xgboost import XGBClassifier
 
@@ -66,7 +66,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)
 
 ###########################  Trainings und Test Satz Split ###################################################
   
-X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.2, random_state=1)
+X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 ############################### Modell und Training 
 
@@ -77,7 +77,7 @@ dtest = xgb.DMatrix(X_test_boost, label=y_test_boost) # features und labels in D
 
 evallist = [(dtrain, 'train'), (dtest, 'eval')]             # evaluieren des Trainings
 num_round = 55                                              # ab 21,22,23 .. alle gleich
-param = {'max_depth': 16, 'eta': 0.3, 'objective': 'binary:hinge', 'gamma': 5.0, 'subsample':0.75,'lambda':5.0,'alpha':0.3}       # param für das Modell      (max depth 5)
+param = {'max_depth': 16, 'eta': 0.3, 'objective': 'binary:hinge', 'gamma': 7.0, 'subsample':0.75}       # param für das Modell      (max depth 5)
 # 16,0.11,7.0 = 0.9597 -- altt:10;0.1111;7.0 = 0.9597(0.96)
 
 ######### eigentliche training:
@@ -100,21 +100,63 @@ keys_gain = featureScore_gain.keys()
 values_gain = featureScore_gain.values()
 
 a = []
-weight = list(values_weight)
-gain = list(values_gain)
+#weight = list(values_weight)
+gain = list(keys_gain)
+
+namen = [ "rel_lowPass", "rel_highPass", "rel_bandPass", "max_ampl.", "sdnn", "peak_diff_median", "peaks_per_measure", "peaks_per_lowPass", "peak_diff_mean", "rmssd", "rmssd_neu", "sdnn_neu", "nn20", "nn50", "pNN20", "pNN50"]
+
+
 
 for nr,y in enumerate(gain):
-    a.append(y/weight[nr])
+    if(y == "f0"):
+        a.append(namen[0])
+    if(y == "f1"):
+        a.append(namen[1])
+    if(y == "f2"):
+        a.append(namen[2])
+    if(y == "f3"):
+        a.append(namen[3])
+    if(y == "f4"):
+        a.append(namen[4])
+    if(y == "f5"):
+        a.append(namen[5])
+    if(y == "f6"):
+        a.append(namen[6])
+    if(y == "f7"):
+        a.append(namen[7])
+    if(y == "f8"):
+        a.append(namen[8])
+    if(y == "f9"):
+        a.append(namen[9])
+    if(y == "f10"):
+        a.append(namen[10])
+    if(y == "f11"):
+        a.append(namen[11])
+    if(y == "f12"):
+        a.append(namen[12])
+    if(y == "f13"):
+        a.append(namen[13])
+    if(y == "f14"):
+        a.append(namen[14])
+    if(y == "f15"):
+        a.append(namen[15])
+    
 
-fig, (ax1, ax2, ax3) = plt.subplots(1, 3,figsize=(10,10))
-ax1.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
+fig, (ax1) = plt.subplots(1,1 ,figsize=(10,10))
+ax1.bar(a, values_gain, width=1, edgecolor="purple", linewidth=0.7)
+plt.xticks(rotation=90)
 ax1.set_title("GAIN per feature")
-ax2.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
-ax2.set_title("Number of times used")
-ax3.bar(keys_weight, a, width=1, edgecolor="purple", linewidth=0.7)
-ax3.set_title("Gain/Num")
+plt.subplots_adjust(left=0.10, bottom=0.20, right=0.85, top=0.85)
+#fig, (ax1, ax2, ax3) = plt.subplots(1, 3,figsize=(10,10))
+#ax1.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
+#ax1.set_title("GAIN per feature")
+#ax2.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
+#ax2.set_title("Number of times used")
+#ax3.bar(keys_weight, a, width=1, edgecolor="purple", linewidth=0.7)
+#ax3.set_title("Gain/Num")
 ax1.axhline(y=5, color='red', linestyle='--')
-plt.show()
+ax1.axhline(y=10, color='red', linestyle='--')
+#plt.show()
 
 ##################################################################  Prediction
 
@@ -133,8 +175,8 @@ print("F1:" , metrics.f1_score(y_test_boost, y_prediction, average='micro'))    
 print("################")
 ##################################################################  Save Trained Modell
 
-print("Saving...")
+#print("Saving...")
 
-bst.save_model('GB_model.json')
+bst.save_model('GBoosting_model.json')
 
-print("-----DONE-----")
+#print("-----DONE-----")

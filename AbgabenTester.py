@@ -135,4 +135,4 @@ def test(model_name : str='GBoosting_model.json'):
 
     
 #test()
-test('SVM_model.pickle')
+test('RF_Model.pickle')
