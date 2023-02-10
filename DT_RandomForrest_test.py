@@ -23,6 +23,7 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics                                     # for F1 score
+from sklearn.utils import compute_class_weight
 
 from wettbewerb import load_references
 from features_112 import features
@@ -43,8 +44,8 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 #features = features(ecg_leads,fs);                 
 #features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
-features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-features = features.reshape(-1,1)
+features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+#features = features.reshape(-1,1)
 ################################################################## Change labels to 1 and 0
 
 for nr,y in enumerate(ecg_labels):
@@ -75,7 +76,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)          # Delete
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 ##################################################################  Modell und Training 
-
+#class_weights = compute_class_weight('balanced',), class_weight='balanced'
 model = RandomForestClassifier(n_estimators= 30, max_features=5, criterion = "entropy") # log loss or entropy : https://datascience.stackexchange.com/questions/67868/random-forest-and-log-loss-metric
 # davor 160 - 5
 model.fit(X_train,y_train)
@@ -125,7 +126,7 @@ print(scores)
 
 print("Saving...")
 
-filename = "RF_ENSEMBLE1.pickle"
+filename = "RF_ENSEMBLE2.pickle"
 
 pickle.dump(model, open(filename, "wb"))
 

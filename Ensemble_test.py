@@ -30,7 +30,8 @@ fail_label = np.array([], dtype=object)                # Array für labels mit ~
 
 #features = features_112.features(ecg_leads,fs,2)
 
-features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+#features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
+features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
 #features = features.reshape(-1,1)
 print("FEATURES DONE")
 
@@ -56,37 +57,37 @@ features = np.delete(features, fail_label.astype(int), axis=0)
 
 ########################### Test and training Split    #########################################
 
-X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.4, random_state=7)
+X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 ######################## Load models    
 
 ## RF
 
-RF = pickle.load(open('RF_Model.pickle', "rb"))            # load model
+RF = pickle.load(open('RF_ENSEMBLE16.pickle', "rb"))            # load model
 prediction_RF = RF.predict(X_test_boost)
 
 ## xgb
 bst = xgb.Booster()
-bst.load_model(fname = 'GBoosting_model.json')              ## load model
+bst.load_model(fname = 'GB_ENSEMBLE_16.json')              ## load model
 dtest = xgb.DMatrix(X_test_boost) 
 prediction_xgb = bst.predict(dtest) 
 
-## kNN
+## NN
 
-kNN = pickle.load(open('kNN_model.pickle', "rb"))            # load model
-prediction_kNN = kNN.predict(X_test_boost)
-
+kNN = pickle.load(open('NN_ENSEMBLE16.pickle', "rb"))            # load model
+prediction_NN = kNN.predict(X_test_boost)
+#print(prediction_NN)
 ## SVM
 
-SVM = pickle.load(open('SVM_model.pickle', "rb"))            # load model
-prediction_SVM = SVM.predict(X_test_boost)
+#SVM = pickle.load(open('SVM_ENSEMBLE16.pickle', "rb"))            # load model
+#prediction_SVM = SVM.predict(X_test_boost)
 
 ############### Ensemble:                                                               ## HIER ENTSCHEIDEN OB SVM ODER KNN REINKOMMT
 """Wir kriegen in der Prediction_xx eine Liste voll mit den """
-prediction_SVM = prediction_SVM.astype(float)
+prediction_NN = prediction_NN.astype(float)
 prediction_Ensemble = np.array([])
 for nr,y in enumerate(prediction_RF):
-    if (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 2 or (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 3 or (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 4:
+    if (prediction_xgb[nr] + y + prediction_NN[nr]) == 2 or (prediction_xgb[nr] + y + prediction_NN[nr] ) == 3:
         prediction_Ensemble = np.append(prediction_Ensemble,1)
     else:
         prediction_Ensemble = np.append(prediction_Ensemble,0)
@@ -94,7 +95,7 @@ for nr,y in enumerate(prediction_RF):
 ######################################################################## UMWANDELN DER PREDICTS ZU 'A' und 'N'
 prediction_Ensemble_end = np.array([], dtype=object)
 prediction_xgb_end = np.array([], dtype=object)
-prediction_kNN_end = np.array([], dtype=object)
+prediction_NN_end = np.array([], dtype=object)
 prediction_RF_end = np.array([], dtype=object)
 prediction_SVM_end = np.array([], dtype=object)
 
@@ -111,11 +112,11 @@ for nr,y in enumerate(prediction_xgb):
     if prediction_xgb[nr] == 1. :
         prediction_xgb_end = np.append(prediction_xgb_end,'A')  # flimmern = 1,A
         
-for nr,y in enumerate(prediction_kNN):                           
-    if prediction_kNN[nr] == 0. :                   
-        prediction_kNN_end = np.append(prediction_kNN_end,'N')  # normal = 0,N           
-    if prediction_kNN[nr] == 1. :
-        prediction_kNN_end = np.append(prediction_kNN_end,'A')  # flimmern = 1,A
+for nr,y in enumerate(prediction_NN):                           
+    if prediction_NN[nr] == 0. :                   
+        prediction_NN_end = np.append(prediction_NN_end,'N')  # normal = 0,N           
+    if prediction_NN[nr] == 1. :
+        prediction_NN_end = np.append(prediction_NN_end,'A')  # flimmern = 1,A
         
 for nr,y in enumerate(prediction_RF):                           
     if prediction_RF[nr] == 0. :                   
@@ -123,18 +124,18 @@ for nr,y in enumerate(prediction_RF):
     if prediction_RF[nr] == 1. :
         prediction_RF_end = np.append(prediction_RF_end,'A')  # flimmern = 1,A
         
-for nr,y in enumerate(prediction_SVM):                           
-    if prediction_SVM[nr] == 0. :                   
-        prediction_SVM_end = np.append(prediction_SVM_end,'N')  # normal = 0,N           
-    if prediction_SVM[nr] == 1. :
-        prediction_SVM_end = np.append(prediction_SVM_end,'A')  # flimmern = 1,A
+#for nr,y in enumerate(prediction_SVM):                           
+#    if prediction_SVM[nr] == 0. :                   
+#        prediction_SVM_end = np.append(prediction_SVM_end,'N')  # normal = 0,N           
+#    if prediction_SVM[nr] == 1. :
+#        prediction_SVM_end = np.append(prediction_SVM_end,'A')  # flimmern = 1,A
         
 
 ##################################################################  Performance berechnung 
 print(" ")
 
 ## xgb
-print("xgb:")
+print("gb:")
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_xgb_end))
 print("F1:" , metrics.f1_score(y_test_boost, prediction_xgb_end, average='micro'))
 print(" ")
@@ -144,15 +145,15 @@ print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_RF_end
 print("F1:" , metrics.f1_score(y_test_boost, prediction_RF_end, average='micro'))
 print(" ")
 ## kNN
-print("kNN:")
-print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_kNN_end))
-print("F1:" , metrics.f1_score(y_test_boost, prediction_kNN_end, average='micro'))
+print("NN:")
+print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_NN_end))
+print("F1:" , metrics.f1_score(y_test_boost, prediction_NN_end, average='micro'))
 print(" ")
 ## SVM
-print("SVM:")
-print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_SVM_end))
-print("F1:" , metrics.f1_score(y_test_boost, prediction_SVM_end, average='micro'))
-print(" ")
+#print("SVM:")
+#print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, prediction_SVM_end))
+#print("F1:" , metrics.f1_score(y_test_boost, prediction_SVM_end, average='micro'))
+#print(" ")
 
 ## Ensemble
 print("-------------------------")

@@ -39,8 +39,8 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 
 ### loading calculated features
 #features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
-features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-features = features.reshape(-1,1)
+features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+#features = features.reshape(-1,1)
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -121,7 +121,7 @@ print("Saving...")
 
 
 ######################### save model
-filename = "SVM_ENSEMBLE1.pickle"
+filename = "SVM_ENSEMBLE2.pickle"
 #
 pickle.dump(model, open(filename, "wb"))
 #

@@ -46,7 +46,7 @@ Predictions_boost = np.array([], dtype=object)          # Array für Prediction
 
 #features = features(ecg_leads,fs)          #   --> das will er nicht checken auch mit methoden import
 #features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
+features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
 #features = features.reshape(-1,1)
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -182,6 +182,6 @@ print("################")
 
 #print("Saving...")
 
-bst.save_model('GB_ENSEMBLE_16.json')
+bst.save_model('GB_ENSEMBLE_2.json')
 
 #print("-----DONE-----")

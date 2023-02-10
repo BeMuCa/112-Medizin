@@ -39,8 +39,9 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 #features = features_112.features(ecg_leads,fs)
 
 ### loading calculated features
-features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-features = features.reshape(-1,1)
+#features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
+features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+#features = features.reshape(-1,1)
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -80,9 +81,9 @@ Predictions = clf.predict(X_test)
 
 print("################")
 print('labels:')
-print(y_test)
+#print(y_test)
 print('predicitons:')
-print(Predictions)
+#print(Predictions)
 print("################")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
@@ -92,9 +93,9 @@ print("Saving...")
 
 
 ######################### save model
-#filename = "NN_model.pickle"
+filename = "NN_ENSEMBLE2.pickle"
 #
-#pickle.dump(clf, open(filename, "wb"))
+pickle.dump(clf, open(filename, "wb"))
 #
 print("----done------")
 print('#####################')
