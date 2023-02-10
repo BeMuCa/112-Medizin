@@ -133,18 +133,54 @@ ecg_leads,ecg_labels,fs,ecg_names = load_references()
 #        else:
 #            print(ecg_lead.size, "der else fall ---------------")
 
-sdnn = np.array([])
-N = 9000  
-for idx, ecg_lead in enumerate(ecg_leads):
-    if idx ==3:
-        print("------")
-        r_peaks = [0,1,2]
-        yf = fft(ecg_lead)                                    # Berechnung des komplexen Spektrums.
-        r_yf = 2.0/N * np.abs(yf[0:N//2])                     # Umwandlung in ein reelles Spektrum.
-        print('Die Transforation in den Frequenzbereich schlägt fehl!')
-        normier_faktor = (np.sum(r_yf))                     # Inverses Integral über Frequenzbereich  
-                                                            # Gesamt integ, weil unten direkt der gesamte freq. bereich normiert wird
-        yf_lowPass = np.array([])                            # Tiefpassfilter von Frequenz (0-450)*fd, dass entspricht (0-15)Hz.
-        result_NN50 = td.nn50([1,1])
-        #nn50 = np.append(nn50, )
-        print(result_NN50['pnn50'])
+#sdnn = np.array([])
+#N = 9000  
+#for idx, ecg_lead in enumerate(ecg_leads):
+#    if idx ==3:
+#        print("------")
+#        r_peaks = [0,1,2]
+#        yf = fft(ecg_lead)                                    # Berechnung des komplexen Spektrums.
+#        r_yf = 2.0/N * np.abs(yf[0:N//2])                     # Umwandlung in ein reelles Spektrum.
+#        print('Die Transforation in den Frequenzbereich schlägt fehl!')
+#        normier_faktor = (np.sum(r_yf))                     # Inverses Integral über Frequenzbereich  
+#                                                            # Gesamt integ, weil unten direkt der gesamte freq. bereich normiert wird
+#        yf_lowPass = np.array([])                            # Tiefpassfilter von Frequenz (0-450)*fd, dass entspricht (0-15)Hz.
+#        result_NN50 = td.nn50([1,1])
+#        #nn50 = np.append(nn50, )
+#        print(result_NN50['pnn50'])
+
+
+
+#p2_range = np.linspace(10,100, num = 10)
+#print(p2_range)[26. 32. 41. 29. 50. 39. 33. 27. 36. 36. 55.]
+
+from scipy.stats import skew
+
+# Calculate the skewness
+
+#
+#i =0
+#
+#def log_transform(data):
+#    log_transformed = np.log(data)
+#    return log_transformed
+#
+#log_transformed =[]
+#data =  [6.79180193e-01 ,3.92650864e-03, 3.11317547e-01, 8.06415077e+01,
+# 1.03825883e+02, 1.87000000e+02 ,5.00000000e+01 ,2.00000000e+00,
+# 1.80979592e+02 ,5.25907945e+01 ,5.30082541e+01 ,3.14705483e+01,
+# 3.90000000e+01 ,2.20000000e+01 ,8.12500000e+01 ,4.58333333e+01]
+#skewness = skew(data)
+#print("erste:",skewness)
+#while(0.5<skewness or skewness<-0.5):
+#    data = log_transform(data)
+#    print("iteration:",i,"werte:",data,"skew:",skew(data) )
+#    skewness = skew(data)
+#    i = i+1
+
+a = np.linspace(0,0.3, num = 5) 
+print(a)
+#print("Skewed data: ", skewness)
+##print("Log transformed data: ", log_transformed)
+#print("Skewness nach trafo: ", skew(log_transform(data)))
+#print("Skewness nach trafo: ", skew(log_transform(log_transform(data))))

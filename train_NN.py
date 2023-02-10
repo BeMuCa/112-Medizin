@@ -39,9 +39,14 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 #features = features_112.features_kalman(ecg_leads,fs)
 #np.savetxt("learningfeatures_kalman.csv", features, delimiter=",")
 ### loading calculated features
+<<<<<<< HEAD
 features = genfromtxt('learningfeatures_16.csv', delimiter=',')
 features_kalman = genfromtxt('learningfeatures_16.csv', delimiter=',')
 
+=======
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
+features = features.reshape(-1,1)
+>>>>>>> afbbbdbcf87b22cc92051df19f6fa4d2b8ec6038
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -65,8 +70,12 @@ features_kalman = np.delete(features_kalman, fail_label.astype(int), axis=0)
 
 ###################################################################  Trainings und Test Satz Split
 
+<<<<<<< HEAD
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
 X_train_k, X_test_k, y_train_k, y_test_k = train_test_split(features_kalman, labels, test_size=0.4, random_state=7)
+=======
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
+>>>>>>> afbbbdbcf87b22cc92051df19f6fa4d2b8ec6038
 
 ##################################################################  Modell und Training 
 
@@ -74,7 +83,7 @@ X_train_k, X_test_k, y_train_k, y_test_k = train_test_split(features_kalman, lab
 F1_score = np.array([]) 
 clf = Pipeline([
     ("scaler", StandardScaler()),
-    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=50, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
 clf_k.fit(X_train_k,y_train_k)
@@ -183,6 +192,7 @@ plt.show()
 #Predictions_k = np.array([], dtype=object)
 #Predictions_k = clf.predict(X_test_k)
 
+<<<<<<< HEAD
 #print("################")
 #print('labels:')
 #print(y_test)
@@ -195,6 +205,20 @@ plt.show()
 #print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 #print("Accuracy: %.3f " % metrics.accuracy_score(y_test_k, Predictions_k))
 #print("F1:" , metrics.f1_score(y_test_k, Predictions_k, average='micro'))
+=======
+print("Saving...")
+
+
+######################### save model
+#filename = "NN_model.pickle"
+#
+#pickle.dump(clf, open(filename, "wb"))
+#
+print("----done------")
+print('#####################')
+
+
+>>>>>>> afbbbdbcf87b22cc92051df19f6fa4d2b8ec6038
 #print('#####################')
 #print('####################alpha=1e-5')
 #clf = Pipeline([

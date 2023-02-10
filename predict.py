@@ -46,6 +46,7 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 # Euer Code ab hier  
     
     Predictions_array = np.array([])    
+    prediction_Ensemble = np.array([])
 
 ########################### Calculate and load feature out of the data ######################################################## 
 
@@ -57,12 +58,12 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
 
     if(model_name == 'Ensemble'):
         ## RF
-        RF = pickle.load(open('RF_Model.pickle', "rb"))
+        RF = pickle.load(open('RF_model.pickle', "rb"))
         prediction_RF = RF.predict(features)
 
         ## xgb
         GB = xgb.Booster()
-        GB.load_model(fname = 'GBoosting_model.json')
+        GB.load_model(fname = 'GB_model.json')
         dfeat = xgb.DMatrix(features) 
         prediction_xgb = GB.predict(dfeat) 
 
@@ -71,15 +72,26 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
         prediction_kNN = kNN.predict(features)
 
         ## SVM
-        SVM = pickle.load(open('SVM_Model.pickle', "rb"))
+        SVM = pickle.load(open('SVM_model.pickle', "rb"))
         prediction_SVM = SVM.predict(features)
         prediction_SVM = prediction_SVM.astype(float)
+        
+        ## NN
+        Neuro = pickle.load(open('NN_model.pickle', "rb"))
+        prediction_Neuro = Neuro.predict(features)
+        prediction_Neuro = prediction_Neuro.astype(float)
+        
         ## Ensemble calculation
         for nr,y in enumerate(prediction_RF):
-            if (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 2 or (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 3 or (prediction_xgb[nr] + y + prediction_kNN[nr] + prediction_SVM[nr]) == 4:
+            if (prediction_xgb[nr] + y + prediction_Neuro[nr] + prediction_SVM[nr]) == 2 or (prediction_xgb[nr] + y + prediction_Neuro[nr] + prediction_SVM[nr]) == 3 or (prediction_xgb[nr] + y + prediction_Neuro[nr] + prediction_SVM[nr]) == 4:
                  prediction_Ensemble = np.append(prediction_Ensemble,1)
             else:
                  prediction_Ensemble = np.append(prediction_Ensemble,0)
+
+
+
+
+
 
     ##################           RF             #########################
     
@@ -88,6 +100,14 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
         Predictions_array = loaded_model.predict(features)
 
     ##################          XGB             #########################
+    if(model_name == 'GB_model.json'):
+        bst = xgb.Booster()
+        bst.load_model(fname = model_name)
+        dtest = xgb.DMatrix(features)
+        Predictions_array = bst.predict(dtest)
+        
+        
+    ##################          XGB    ALT          #########################
     if(model_name == 'GBoosting_model.json'):
         bst = xgb.Booster()
         bst.load_model(fname = model_name)
@@ -102,7 +122,14 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
         
     ##################           SVM             #########################
     
-    if(model_name == 'SVM_Model.pickle'):
+    if(model_name == 'SVM_model.pickle'):
+        SVM = pickle.load(open(model_name, "rb"))
+        Predictions_array = SVM.predict(features)
+        Predictions_array = Predictions_array.astype(float)
+
+    ##################           NN             #########################
+    
+    if(model_name == 'NN_model.pickle'):
         SVM = pickle.load(open(model_name, "rb"))
         Predictions_array = SVM.predict(features)
         Predictions_array = Predictions_array.astype(float)
@@ -113,10 +140,10 @@ def predict_labels(ecg_leads : List[np.ndarray], fs : float, ecg_names : List[st
     labels = np.array([], dtype=object)
     
     for nr,y in enumerate(Predictions_array):                           ## We will probably need A,N instead of 0,1
-        if y == 0.:                   
+        if y == 0. or y =='0':                   
             labels = np.append(labels,'N')  # normal = 0,N           
 
-        if y == 1.:
+        if y == 1. or y =='1':
             labels = np.append(labels,'A')  # flimmern = 1,A
 
 ########################### Form into the Output Prediction form ########################################################    

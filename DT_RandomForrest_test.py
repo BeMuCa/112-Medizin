@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import pickle
 #import pandas as pd
 
+from sklearn.tree import export_graphviz
+import graphviz
+
 # evaluate random forest algorithm for classification
 import numpy as np
 from sklearn import tree
@@ -23,7 +26,7 @@ from sklearn import metrics                                     # for F1 score
 
 from wettbewerb import load_references
 from features_112 import features
-from numpy import genfromtxt;
+from numpy import genfromtxt
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
 
@@ -38,9 +41,10 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs);                 
-#features = genfromtxt('learningfeatures_16.csv', delimiter=',')
-
+#features = features(ecg_leads,fs);                 
+#features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
+features = features.reshape(-1,1)
 ################################################################## Change labels to 1 and 0
 
 for nr,y in enumerate(ecg_labels):
@@ -68,12 +72,12 @@ features = np.delete(features, fail_label.astype(int), axis=0)          # Delete
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 ##################################################################  Modell und Training 
 
-model = RandomForestClassifier(n_estimators= 160, max_features=5, criterion = "entropy") # 160, 5, entropy - 0.971 ; (80, 6 = 0.9567) -- alt: 20,7 = 0,9561
-
+model = RandomForestClassifier(n_estimators= 30, max_features=5, criterion = "entropy") # log loss or entropy : https://datascience.stackexchange.com/questions/67868/random-forest-and-log-loss-metric
+# davor 160 - 5
 model.fit(X_train,y_train)
 
 ##################################################################  Prediction
@@ -92,7 +96,8 @@ Predictions = model.predict(X_test)
 
 # Printen für uns                                                    
 print("################")
-print(Predictions)                              # [1. 0. 0. ..]
+#print(Predictions)                              # [1. 0. 0. ..]
+#print("---",y_test)
 print("######### Random Forrest #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
@@ -113,11 +118,14 @@ print(scores)
 
 
 
+
+
+
 ########################### save model
 
 print("Saving...")
 
-filename = "RF_model.pickle"
+filename = "RF_ENSEMBLE1.pickle"
 
 pickle.dump(model, open(filename, "wb"))
 

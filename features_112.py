@@ -17,6 +17,9 @@ import pyhrv.time_domain as td
 import matplotlib.pyplot as plt
 from pykalman import KalmanFilter
 
+from scipy.stats import skew
+from sklearn.preprocessing import MinMaxScaler,RobustScaler
+
 
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
@@ -28,9 +31,14 @@ def features(ecg_leads,fs, set = 2):
     '''
     set = 1: only the most gain bringing features 
     set = 2: all features
+    ------- We use all features as they have the same average gain
+    set = 3: minimized testing 1 ( to be tested)
+    set = 4: delete bad feats 1 
     '''
-
-
+    
+    scaler = MinMaxScaler()                                   # initialisierung des Scalers
+    robust_scaler = RobustScaler()                            # initialisierung des robusten Scalers
+    
     detectors = Detectors(fs)                                 # Initialisierung des QRS-Detektors
 
     # Label-List
@@ -53,7 +61,7 @@ def features(ecg_leads,fs, set = 2):
     relativ_highPass = np.array([])                           # Initialisierung Relativer Anteil des Mittelfrequenzbandes an dem Gesamtspektrum.
     relativ_bandPass = np.array([])                           # Initialisierung Relativer Anteil des Hochfrequenzbandes an dem Gesamtspektrum.
     rmssd = np.array([])                                      # Initialisierung des RMSSD Wertes
-    
+    peaks = np.array([])                                      # init peak anzahl
   ## pyhrv:  
     rmssd_neu = np.array([])                                  # Initialisierung des RMSSD Wertes (pyhrv - Version)
     sdnn_neu = np.array([])                                   # Initialisierung des SDNN Wertes (pyhrv - Version)
@@ -269,18 +277,48 @@ def features(ecg_leads,fs, set = 2):
         print('Die Berechung der NN20 (pyhrv) + pNN20 (pyhrv) schlägt fehl!',idx)
         nn20 = np.append(nn20,0)
         pNN20 = np.append(pNN20,0.0)
+    
+    ################## skew checker         (unused)
+      peaks = np.append(peaks,len(r_peaks))         # anzahl peaks pro ecg ( mindestens 3)
+      #skewness = skew(peaks)
+      #print("skewness von peaks:", skewness)
     ################
+ 
       if (idx % 100)==0:
         print("Features von: \t" + str(idx) + "\t EKG Signalen wurden verarbeitet.")
+
       if(set==2):
         ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
-        features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peaks_per_lowPass, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
+        features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass,peaks_per_lowPass, max_amplitude, sdnn, peak_diff_median, peaks_per_measure, peak_diff_mean, rmssd, rmssd_neu, sdnn_neu, nn20, nn50, pNN20, pNN50]))
       if(set==1):
         ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
         features =np.transpose(np.array([ sdnn])) # nn20 ist stärkste
-      #print('Messung: ',idx)
-  
-    return features
+      if(set==3):
+        ## stärksten
+        features =np.transpose(np.array([ nn20, nn50,pNN50, peak_diff_mean,pNN20])) # nn20 ist stärkste
+      if(set==4):
+        ## Schlechtesten raus: 3,4,5,
+        features =np.transpose(np.array([ sdnn_neu]))
+    
+    #### Skalierung der features :
+# first the robust scale since its less sensitive to outliers
+    try:
+      features_robust_scaled = robust_scaler.fit_transform(features)
+    except:
+      features_robust_scaled = features
+
+# secondly the minmax scale to scale into range (0,1)
+    try:
+      features_scaled = scaler.fit_transform(features_robust_scaled)  # fit and transform in one step
+      # fit data
+      # features_scaled = scaler.fit(features_robust_scaled)
+      # Transform the data
+      #features_scaled = scaler.transform(features_robust_scaled)
+    except:
+      features_scaled = features
+
+
+    return features_scaled
 
 
 def features_kalman(ecg_leads,fs, set = 2):
