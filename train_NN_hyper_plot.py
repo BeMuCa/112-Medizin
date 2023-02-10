@@ -71,108 +71,111 @@ X_train_k, X_test_k, y_train_k, y_test_k = train_test_split(features_kalman, lab
 ##################################################################  Modell und Training 
 
 #clf = MLPClassifier(solver='lbfgs', alpha=1, hidden_layer_sizes=(5,4,2), random_state=1) #alpha=1e-5
+print("Asuwertung beginnt")
 F1_score = np.array([]) 
+
+print("Asuwertung 1 abgeschlossen")
+clf = Pipeline([
+    ("scaler", StandardScaler()),
+    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=0.0001, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ])
+clf.fit(X_train,y_train)
+Predictions = np.array([], dtype=object)
+Predictions = clf.predict(X_test)
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print(metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 2 abgeschlossen")
+clf = Pipeline([
+    ("scaler", StandardScaler()),
+    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=0.1, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ])
+clf.fit(X_train,y_train)
+Predictions = np.array([], dtype=object)
+Predictions = clf.predict(X_test)
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 3 abgeschlossen")
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
-metrics.f1_score(y_test, Predictions, average='micro')
-clf = Pipeline([
-    ("scaler", StandardScaler()),
-    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1e^(-3), hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-    ])
-clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
-Predictions = np.array([], dtype=object)
-Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
-clf = Pipeline([
-    ("scaler", StandardScaler()),
-    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1e^(-1), hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-    ])
-clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
-Predictions = np.array([], dtype=object)
-Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
-clf = Pipeline([
-    ("scaler", StandardScaler()),
-    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-    ])
-clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
-Predictions = np.array([], dtype=object)
-Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 4 abgeschlossen")
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=10, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 5 abgeschlossen")
+clf = Pipeline([
+    ("scaler", StandardScaler()),
+    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=50, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ])
+clf.fit(X_train,y_train)
+Predictions = np.array([], dtype=object)
+Predictions = clf.predict(X_test)
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=100, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 6 abgeschlossen")
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 7 abgeschlossen")
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=2000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 8 abgeschlossen")
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=5000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 9 abgeschlossen")
 clf = Pipeline([
     ("scaler", StandardScaler()),
     ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=10000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
-clf_k = Pipeline([
-    ("scaler", StandardScaler()),
-    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, alpha=1, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-    ])
-clf.fit(X_train,y_train)
-clf_k.fit(X_train_k,y_train_k)
-Predictions = np.array([], dtype=object)
-Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
-plt.plot(range(0, F1_score.size), F1_score)
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+print("Asuwertung 10 abgeschlossen")
+print("Asuwertung 11 abgeschlossen")
+print("plot wird erstellt")
+points = np.array([])
+F1 = np.array([])
+F1 = F1_score
+points = [0.001,0.1,1,10,50,100,1000,2000,5000,10000]
+plt.plot(points, F1)
+plt.xlabel("alpha")
+plt.ylabel("F1 score")
+plt.title("Performance der Hyperparameter")
 plt.show()
 #clf.fit(X_train,y_train)
 #clf_k.fit(X_train_k,y_train_k)
@@ -205,42 +208,3 @@ plt.show()
 #print(scores)
 #print(mean(scores))
 #print('####################alpha=1')
-#clf = Pipeline([
-#    ("scaler", StandardScaler()),
-#    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 100000, alpha=1, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-#    ])
-#scores = cross_val_score(clf, features, labels, cv = 10)
-#print(scores)
-#print(mean(scores))
-#print('####################alpha=20')
-#clf = Pipeline([
-#    ("scaler", StandardScaler()),
-#    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 100000, alpha=20, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-#    ])
-#scores = cross_val_score(clf, features, labels, cv = 10)
-#print(scores)
-#print(mean(scores))
-#print('####################alpha=2000')
-#clf = Pipeline([
-#    ("scaler", StandardScaler()),
-#    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 100000, alpha=2000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-#    ])
-#scores = cross_val_score(clf, features, labels, cv = 10)
-#print(scores)
-#print(mean(scores))
-#print('####################alpha=5000')
-#clf = Pipeline([
-#    ("scaler", StandardScaler()),
-#    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 100000, alpha=2000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-#    ])
-#scores = cross_val_score(clf, features, labels, cv = 10)
-#print(scores)
-#print(mean(scores))
-#print('####################alpha=50000')
-#clf = Pipeline([
-#    ("scaler", StandardScaler()),
-#    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 100000, alpha=2000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
-#    ])
-#scores = cross_val_score(clf, features, labels, cv = 10)
-#print(scores)
-#print(mean(scores))
