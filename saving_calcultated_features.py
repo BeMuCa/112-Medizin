@@ -17,4 +17,4 @@ features = features_112.features(ecg_leads,fs)
 
 ########################### Save features in csv ######################################################
 
-np.savetxt("learningfeatures_16_scaled.csv", features, delimiter=",")
+np.savetxt("learningfeatures_ALLESINDHIER.csv", features, delimiter=",")

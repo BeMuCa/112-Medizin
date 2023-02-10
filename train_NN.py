@@ -40,7 +40,7 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 
 ### loading calculated features
 features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-
+features = features.reshape(-1,1)
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
@@ -92,9 +92,9 @@ print("Saving...")
 
 
 ######################### save model
-filename = "NN_model.pickle"
+#filename = "NN_model.pickle"
 #
-pickle.dump(clf, open(filename, "wb"))
+#pickle.dump(clf, open(filename, "wb"))
 #
 print("----done------")
 print('#####################')

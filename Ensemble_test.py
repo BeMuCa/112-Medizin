@@ -31,6 +31,7 @@ fail_label = np.array([], dtype=object)                # Array für labels mit ~
 #features = features_112.features(ecg_leads,fs,2)
 
 features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+#features = features.reshape(-1,1)
 print("FEATURES DONE")
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############

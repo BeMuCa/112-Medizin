@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import pickle
 #import pandas as pd
 
+from sklearn.tree import export_graphviz
+import graphviz
+
 # evaluate random forest algorithm for classification
 import numpy as np
 from sklearn import tree
@@ -39,8 +42,9 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 ################################################################## Calculate the features
 
 #features = features(ecg_leads,fs);                 
+#features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
 features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-
+features = features.reshape(-1,1)
 ################################################################## Change labels to 1 and 0
 
 for nr,y in enumerate(ecg_labels):
@@ -114,11 +118,14 @@ print(scores)
 
 
 
+
+
+
 ########################### save model
 
 print("Saving...")
 
-filename = "RF_model.pickle"
+filename = "RF_ENSEMBLE1.pickle"
 
 pickle.dump(model, open(filename, "wb"))
 
