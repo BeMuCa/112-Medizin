@@ -36,8 +36,8 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 ################################################################## Calculate the features
 
-features = features(ecg_leads,fs)
-#features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+#features = features(ecg_leads,fs)
+features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
 
 ################################################################## Change labels to 1 and 0
 
@@ -90,7 +90,7 @@ Predictions = model.predict(X_test)
 
 # Printen für uns                                                    
 print("################")
-print(Predictions)
+#print(Predictions)
 print("######## kNN ########")                     # ['1' '0' '0' ... '0' '0' '0'] = so XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))

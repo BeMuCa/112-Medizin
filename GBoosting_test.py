@@ -69,7 +69,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)
 
 ###########################  Trainings und Test Satz Split ###################################################
   
-X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.2, random_state=7)
+X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.3, random_state=7)
 
 ############################### Modell und Training 
 
@@ -90,21 +90,21 @@ bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds
 ############################### FEATURE TESTING 
 ## choose 1:
 
-#featureScore_weight = bst.get_score( importance_type='weight')    #the number of times a feature is used to split the data across all trees. 
-#featureScore_gain = bst.get_score( importance_type='gain')        #the average gain across all splits the feature is used in.
+featureScore_weight = bst.get_score( importance_type='weight')    #the number of times a feature is used to split the data across all trees. 
+featureScore_gain = bst.get_score( importance_type='gain')        #the average gain across all splits the feature is used in.
 # IMPORTANCE TYPE: https://towardsdatascience.com/be-careful-when-interpreting-your-features-importance-in-xgboost-6e16132588e7
 
 ## plot the weight
-#keys_weight = featureScore_weight.keys()
-#values_weight = featureScore_weight.values()
+keys_weight = featureScore_weight.keys()
+values_weight = featureScore_weight.values()
 
 ## plot the gain
-#keys_gain = featureScore_gain.keys()
-#values_gain = featureScore_gain.values()
+keys_gain = featureScore_gain.keys()
+values_gain = featureScore_gain.values()
 
-#a = []
-#weight = list(values_weight)
-#gain = list(keys_gain)
+a = []
+weight = list(values_weight)
+gain = list(keys_gain)
 
 #namen = [ "rel_lowPass", "rel_highPass", "rel_bandPass", "max_ampl.", "sdnn", "peak_diff_median", "peaks_per_measure", "peaks_per_lowPass", "peak_diff_mean", "rmssd", "rmssd_neu", "sdnn_neu", "nn20", "nn50", "pNN20", "pNN50"]
 
@@ -145,23 +145,26 @@ bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds
 #        a.append(namen[15])
     
 
-#fig, (ax1) = plt.subplots(1,1 ,figsize=(10,10))
-#ax1.bar(a, values_gain, width=1, edgecolor="purple", linewidth=0.7)
-#plt.xticks(rotation=90)
-#ax1.set_title("GAIN per feature")
-#plt.subplots_adjust(left=0.10, bottom=0.20, right=0.85, top=0.85)
-#fig, (ax1, ax2, ax3) = plt.subplots(1, 3,figsize=(10,10))
-#ax1.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
-#ax1.set_title("GAIN per feature")
+fig, (ax1) = plt.subplots(1,1 ,figsize=(10,10))
+ax1.bar(a, values_gain, width=1, edgecolor="purple", linewidth=0.7)
+plt.xticks(rotation=90)
+ax1.set_title("GAIN per feature")
+plt.subplots_adjust(left=0.10, bottom=0.20, right=0.85, top=0.85)
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3,figsize=(10,10))
+
+ax1.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
+ax1.set_title("GAIN per feature")
+
 #ax2.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
 #ax2.set_title("Number of times used")
-#ax3.bar(keys_weight, a, width=1, edgecolor="purple", linewidth=0.7)
-#ax3.set_title("Gain/Num")
+
+
 #ax1.axhline(y=5, color='red', linestyle='--')
 #ax1.axhline(y=10, color='red', linestyle='--')
 #plt.show()
+
 #plot_tree(bst)
-#plt.show()
+plt.show()
 
 ##################################################################  Prediction
 

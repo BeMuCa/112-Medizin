@@ -13,8 +13,8 @@ ecg_leads,ecg_labels,fs,ecg_names = load_references();
 
 ########################### Calculate the features ######################################################
 
-features = features_112.features(ecg_leads,fs,1)
+features = features_112.features(ecg_leads,fs,2)
 
 ########################### Save features in csv ######################################################
 
-np.savetxt("learningfeatures_2_features.csv", features, delimiter=",")
+np.savetxt("learningfeatures_14features.csv", features, delimiter=",")

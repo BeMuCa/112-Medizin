@@ -34,7 +34,7 @@ from numpy import genfromtxt
 ecg_leads,ecg_labels,fs,ecg_names = load_references() # Importiere EKG-Dateien, Diagnose(A,N),
                                                       # Sampling-Frequenz (Hz) und Name (meist fs=300 Hz)
 
-################################################################## Array + Debugging stuff init
+####################################################    ############## Array + Debugging stuff init
 
 labels = np.array([])               # Array für labels mit 1(A) und 0(N)
 fail_label = np.array([])           # Array für labels mit ~ und O
@@ -73,7 +73,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)          # Delete
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=7)
 
 ##################################################################  Modell und Training 
 #class_weights = compute_class_weight('balanced',), class_weight='balanced'
