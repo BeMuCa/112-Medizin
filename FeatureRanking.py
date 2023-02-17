@@ -12,16 +12,17 @@ from sklearn.decomposition import PCA
 from sklearn.datasets import load_breast_cancer
 import numpy as np
 from numpy import genfromtxt
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-
-# load the features
-#ecg_leads,ecg_labels,fs,ecg_names = load_references()
+# load the features and labels
+ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
 features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
 
 
 # create a PCA object and fit
-pca = PCA(n_components=0.95)  # Minimize till we are left with 95% of the variance
+pca = PCA(n_components=0.90)  # Minimize till we are left with 90% of the variance
 pca.fit(features)
 
 # get the coefficients of the linear combination that defines each principal component
@@ -33,4 +34,43 @@ best_features = np.abs(coef).argmax(axis=1)
 # print the indices of the best features
 print("Best Features:", best_features)
 print("anzahl feats:", pca.n_features_)
-print("anzahl samples:", pca.n_samples_)
+print("anzahl samples:",pca.n_components_)
+
+
+# Visualization of the top 3 features:
+
+# get the best 3 features from the PCA object
+best_3_features = pca.components_[:3, :]
+
+# transform the original data to the reduced 3D space
+features_reduced = pca.transform(features)[:, :3]
+
+# color the data points
+colors = np.array([])
+
+for nr,y in enumerate(ecg_labels):
+
+    if ecg_labels[nr] == 'N': 
+        colors = np.append(colors,'green')
+        continue  
+
+    if ecg_labels[nr] == 'A': 
+        colors = np.append(colors,'red')
+        continue
+
+    else:
+        colors= np.append(colors, 'white')
+
+
+# create a 3D scatter plot of the reduced data
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(features_reduced[:, 0], features_reduced[:, 1], features_reduced[:, 2], c=colors)
+ax.set_xlabel('12')
+ax.set_ylabel('2')
+ax.set_zlabel('6')
+plt.show()
+
+
+
+
