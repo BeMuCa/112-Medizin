@@ -31,7 +31,7 @@ fail_label = np.array([], dtype=object)                # Array für labels mit ~
 #features = features_112.features(ecg_leads,fs,2)
 
 #features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
-features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
+features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
 #features = features.reshape(-1,1)
 print("FEATURES DONE")
 

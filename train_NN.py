@@ -61,16 +61,11 @@ for nr,y in enumerate(ecg_labels):
 ########################### delete feature for the labels ~ and O    #########################################
     
 features = np.delete(features, fail_label.astype(int), axis=0)
-features_kalman = np.delete(features_kalman, fail_label.astype(int), axis=0)
+#features_kalman = np.delete(features_kalman, fail_label.astype(int), axis=0)
 
 ###################################################################  Trainings und Test Satz Split
 
-<<<<<<< HEAD
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
-X_train_k, X_test_k, y_train_k, y_test_k = train_test_split(features_kalman, labels, test_size=0.4, random_state=7)
-=======
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
->>>>>>> afbbbdbcf87b22cc92051df19f6fa4d2b8ec6038
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=7)
 
 ##################################################################  Modell und Training 
 
@@ -175,7 +170,7 @@ clf.fit(X_train,y_train)
 clf_k.fit(X_train_k,y_train_k)
 Predictions = np.array([], dtype=object)
 Predictions = clf.predict(X_test)
-F1_score = np.append(F1_scroe , metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
 plt.plot(range(0, F1_score.size), F1_score)
 plt.show()
 #clf.fit(X_train,y_train)
@@ -191,7 +186,6 @@ print('predicitons:')
 #print(Predictions)
 print("################")
 
-<<<<<<< HEAD
 #print("################")
 #print('labels:')
 #print(y_test)
@@ -204,20 +198,6 @@ print("################")
 #print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 #print("Accuracy: %.3f " % metrics.accuracy_score(y_test_k, Predictions_k))
 #print("F1:" , metrics.f1_score(y_test_k, Predictions_k, average='micro'))
-=======
-print("Saving...")
-
-
-######################### save model
-filename = "NN_ENSEMBLE2.pickle"
-#
-pickle.dump(clf, open(filename, "wb"))
-#
-print("----done------")
-print('#####################')
-
-
->>>>>>> afbbbdbcf87b22cc92051df19f6fa4d2b8ec6038
 #print('#####################')
 #print('####################alpha=1e-5')
 #clf = Pipeline([

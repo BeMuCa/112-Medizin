@@ -26,10 +26,10 @@ pca = PCA(n_components=0.90)  # Minimize till we are left with 90% of the varian
 pca.fit(features)
 
 # get the coefficients of the linear combination that defines each principal component
-coef = pca.components_
+coefs = pca.components_
 
 # find the original features that contribute the most to each principal component
-best_features = np.abs(coef).argmax(axis=1)
+best_features = np.abs(coefs).argmax(axis=1)
 
 # print the indices of the best features
 print("Best Features:", best_features)

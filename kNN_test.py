@@ -37,7 +37,7 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 ################################################################## Calculate the features
 
 #features = features(ecg_leads,fs)
-features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
+features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
 
 ################################################################## Change labels to 1 and 0
 
@@ -66,11 +66,11 @@ features = np.delete(features, fail_label.astype(int), axis=0)          # Delete
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=7)
 
 ##################################################################  Modell und Training 
 
-model = KNeighborsClassifier(n_neighbors = 4 , p = 1 , weights = 'uniform')
+model = KNeighborsClassifier() #n_neighbors = 4 , p = 1 , weights = 'uniform'
 
 model.fit(X_train,y_train)
 
@@ -111,8 +111,8 @@ print(scores)
 
 #print("Saving...")
 #
-#filename = "kNN_model.pickle"
+filename = "kNN_model_default_5.pickle"
 #
-#pickle.dump(model, open(filename, "wb"))
+pickle.dump(model, open(filename, "wb"))
 #
 #print("----done------")

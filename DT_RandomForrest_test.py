@@ -44,7 +44,7 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 
 #features = features(ecg_leads,fs);                 
 #features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
-features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
 #features = features.reshape(-1,1)
 ################################################################## Change labels to 1 and 0
 
@@ -77,8 +77,7 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 ##################################################################  Modell und Training 
 #class_weights = compute_class_weight('balanced',), class_weight='balanced'
-model = RandomForestClassifier(n_estimators= 30, max_features=5, criterion = "entropy") # log loss or entropy : https://datascience.stackexchange.com/questions/67868/random-forest-and-log-loss-metric
-# davor 160 - 5
+model = RandomForestClassifier() # n_estimators= 30, max_features=5, criterion = "entropy"
 model.fit(X_train,y_train)
 
 ##################################################################  Prediction
@@ -126,7 +125,7 @@ print(scores)
 
 print("Saving...")
 
-filename = "RF_ENSEMBLE2.pickle"
+filename = "RF_model_default_5.pickle"
 
 pickle.dump(model, open(filename, "wb"))
 
