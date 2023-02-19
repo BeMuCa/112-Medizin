@@ -63,7 +63,7 @@ features = np.delete(features, fail_label.astype(int), axis=0)
 
 ###################################################################  Trainings und Test Satz Split
 
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=7)
 
 ##################################################################  Modell und Training 
 model = Pipeline([
@@ -101,9 +101,9 @@ Predictions = model.predict(X_test)
 # Printen für uns                                                    
 print("################")
 print('labels:')
-print(y_test)
-print('predicitons:')
-print(Predictions)
+#print(y_test)
+#print('predicitons:')
+#print(Predictions)
 print("################")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
