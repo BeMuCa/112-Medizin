@@ -68,11 +68,18 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 ##################################################################  Modell und Training 
 model = Pipeline([
     ("scaler", StandardScaler()),
-    ("svc", SVC(kernel = "poly", degree=3,C=50)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ("svc", SVC(kernel = "poly", degree=3)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 # model = SVR(kernel = "poly", degree=2,C=100,epsilon=0.1);
 # model = LinearSVR(epsilon=1.5);
 model.fit(X_train,y_train);
+print("saving")
+filename = "SVM_final_2features.pickle"
+#
+pickle.dump(model, open(filename, "wb"))
+#
+print("----done------")
+print('#####################')
 
 #################################################################  Prediction
 Predictions = np.array([], dtype=object)
@@ -117,16 +124,11 @@ print('#####################')
 
 #print(n_f1)
 
-print("Saving...")
+print("end")
 
 
 ######################### save model
-filename = "SVM_ENSEMBLE2.pickle"
-#
-pickle.dump(model, open(filename, "wb"))
-#
-print("----done------")
-print('#####################')
+
 #print('Crossvalidation:')
 #model_cross = Pipeline([
 #    ("scaler", StandardScaler()),
