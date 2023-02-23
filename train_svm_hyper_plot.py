@@ -38,7 +38,7 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 #features = features_112.features(ecg_leads,fs)
 
 ### loading calculated features
-features = genfromtxt('learningfeatures_16.csv', delimiter=',')
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
@@ -59,11 +59,13 @@ for nr,y in enumerate(ecg_labels):
 ########################### delete feature for the labels ~ and O    #########################################
     
 features = np.delete(features, fail_label.astype(int), axis=0)
+features = features.reshape(-1,1)
+
 
 ###################################################################  Trainings und Test Satz Split
 
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
-
+features = features.reshape(-1,1)
 ##################################################################  Modell und Training 
 #kernel = "poly", degree=2,C=100,epsilon=0.1);
 # model = LinearSVR(epsilon=1.5);
@@ -78,10 +80,11 @@ model = Pipeline([
 model.fit(X_train,y_train);
 Predictions = np.array([], dtype=object)
 Predictions = model.predict(X_test)
-F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
 print(metrics.f1_score(y_test, Predictions, average='micro'))
+F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
+
 print("Asuwertung 2 abgeschlossen")
-filename = "SVM_model_final.pickle"
+filename = "SVM_model_final_1.pickle"
 ##
 pickle.dump(model, open(filename, "wb"))
 print("saved")

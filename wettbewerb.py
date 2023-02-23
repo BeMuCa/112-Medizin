@@ -12,11 +12,11 @@ import scipy.io as sio
 import numpy as np
 import os
 # '../training' -- normal
-# raoul : 'C:\\Users\\Raoul\\112-Trainig\\training'
+# raoul : 'C:\Users\Raoul\112_Training\training'
 
 ### Achtung! Diese Funktion nicht veraendern.
 
-def load_references(folder: str = '../training') -> Tuple[List[np.ndarray], List[str], int, List[str]]:
+def load_references(folder: str = 'C:\\Users\\Raoul\\112_Training\\training') -> Tuple[List[np.ndarray], List[str], int, List[str]]:
     """
     Parameters
     ----------

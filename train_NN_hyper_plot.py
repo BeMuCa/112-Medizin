@@ -39,8 +39,8 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 #features = features_112.features_kalman(ecg_leads,fs)
 #np.savetxt("learningfeatures_kalman.csv", features, delimiter=",")
 ### loading calculated features
-features = genfromtxt('learningfeatures_16.csv', delimiter=',')
-features_kalman = genfromtxt('learningfeatures_16.csv', delimiter=',')
+features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
+
 
 
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
@@ -61,12 +61,12 @@ for nr,y in enumerate(ecg_labels):
 ########################### delete feature for the labels ~ and O    #########################################
     
 features = np.delete(features, fail_label.astype(int), axis=0)
-features_kalman = np.delete(features_kalman, fail_label.astype(int), axis=0)
-
+#features_kalman = np.delete(features_kalman, fail_label.astype(int), axis=0)
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
+features = features.reshape(-1,1)
 ###################################################################  Trainings und Test Satz Split
 
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
-X_train_k, X_test_k, y_train_k, y_test_k = train_test_split(features_kalman, labels, test_size=0.4, random_state=7)
 
 ##################################################################  Modell und Training 
 
