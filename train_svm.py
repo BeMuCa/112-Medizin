@@ -39,9 +39,9 @@ Predictions = np.array([], dtype=object)          # Array für Prediction
 
 ### loading calculated features
 #features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
-features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
 #features = features.reshape(-1,1)
-
+print("Geladen")
 ########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
 for nr,y in enumerate(ecg_labels):
@@ -68,13 +68,13 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 ##################################################################  Modell und Training 
 model = Pipeline([
     ("scaler", StandardScaler()),
-    ("svc", SVC(kernel = "poly", degree=3)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ("svc", SVC()) # 50 fittet am besten, eventuell overfittung? -> senken  kernel = "poly", degree=3
     ])
 # model = SVR(kernel = "poly", degree=2,C=100,epsilon=0.1);
 # model = LinearSVR(epsilon=1.5);
 model.fit(X_train,y_train);
 print("saving")
-filename = "SVM_final_2features.pickle"
+filename = "SVM_final_default_param.pickle"
 #
 pickle.dump(model, open(filename, "wb"))
 #
