@@ -32,9 +32,9 @@ coefs = pca.components_
 best_features = np.abs(coefs).argmax(axis=1)
 
 # print the indices of the best features
-print("Best Features:", best_features)
-print("anzahl feats:", pca.n_features_)
-print("anzahl samples:",pca.n_components_)
+print("Best features:", best_features)
+print("Nr of feats:", pca.n_features_)
+print("Nr of samples:",pca.n_components_)
 
 
 # Visualization of the top 3 features:
@@ -66,9 +66,9 @@ for nr,y in enumerate(ecg_labels):
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(features_reduced[:, 0], features_reduced[:, 1], features_reduced[:, 2], c=colors)
-ax.set_xlabel('12')
-ax.set_ylabel('2')
-ax.set_zlabel('6')
+ax.set_xlabel('nn50')
+ax.set_ylabel('relativ_highPass')
+ax.set_zlabel('peak_diff_median')
 plt.show()
 
 

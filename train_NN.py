@@ -72,17 +72,16 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 #clf = MLPClassifier(solver='lbfgs', alpha=1, hidden_layer_sizes=(5,4,2), random_state=1) #alpha=1e-5
 F1_score = np.array([]) 
 model = Pipeline([
-    ("scaler", StandardScaler()),
-    ("mlp", MLPClassifier(solver='lbfgs', max_iter = 1000, hidden_layer_sizes=(5,4,2), random_state=1)) # 50 fittet am besten, eventuell overfittung? -> senken
+    ("mlp", MLPClassifier()) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 model.fit(X_train,y_train)
 Predictions = np.array([], dtype=object)
 Predictions = model.predict(X_test)
 F1_score = np.append(F1_score , metrics.f1_score(y_test, Predictions, average='micro'))
 metrics.f1_score(y_test, Predictions, average='micro')
-filename = "NN_final_2features.pickle"
+#filename = "NN_final_2features.pickle"
 #
-pickle.dump(model, open(filename, "wb"))
+#pickle.dump(model, open(filename, "wb"))
 #
 print("----done------")
 print('#####################')
@@ -114,7 +113,7 @@ print("Saving...")
 #print("################")
 
 #print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
-#print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
+print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 #print("Accuracy: %.3f " % metrics.accuracy_score(y_test_k, Predictions_k))
 #print("F1:" , metrics.f1_score(y_test_k, Predictions_k, average='micro'))
 #print('#####################')
