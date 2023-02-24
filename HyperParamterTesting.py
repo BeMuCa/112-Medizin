@@ -1,18 +1,21 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# HYPER PARAMETER TESTER:
-# Ziel ist es alle Hyperparameter durchzugehen und zu gucken welches am besten ist 
+"""
+
+Script for Hyperparameter testing.
+
+"""
+__author__ = "Berk Calabakan"
 
 import matplotlib.pyplot as plt
 
-#import pandas as pd
 
-# evaluate random forest algorithm for classification
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import xgboost as xgb
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn import metrics                                     # for F1 score
+from sklearn import metrics
 
 from wettbewerb import load_references
 from features_112 import features
@@ -20,41 +23,37 @@ from numpy import genfromtxt;
 
 ###################### Base Structure ##################
 
+### Load Trainings data
 ecg_leads,ecg_labels,fs,ecg_names = load_references() 
 
-######## ARRAY INIT ########
+### Array initiation
+labels = np.array([], dtype=object)
+fail_label = np.array([], dtype=object)
+Predictions_boost = np.array([], dtype=object)
 
-labels = np.array([], dtype=object)                    # Array für labels mit 1(A) und 0(N)
-        
-fail_label = np.array([], dtype=object)                # Array für labels mit ~ und O
-    
-Predictions_boost = np.array([], dtype=object)          # Array für Prediction
-
-######## Features #########
-
+### Calculate the features
 #features = features(ecg_leads,fs)
 features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
 
-######## Label ############
-
+### Change labels to 1 and 0 
+### Delete labels with values != 0 or 1 and corresponding features
 for nr,y in enumerate(ecg_labels):
     if ecg_labels[nr] == 'N':                   
-        labels = np.append(labels,'0')            # '0' für xgb         
+        labels = np.append(labels,'0')
         continue
 
     if ecg_labels[nr] == 'A':
-        labels = np.append(labels,'1')            # '1' für xgb
+        labels = np.append(labels,'1')
         continue
 
     else:
         fail_label= np.append(fail_label, nr)
 
-
+### Delete features for the labels ~ and O
 features = np.delete(features, fail_label.astype(int), axis=0)
 
-########  Trainings und Test Split ###########
-  
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)    # random state 1
+### Training and test split
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
 
 
 #################################################################################################################################
@@ -130,7 +129,7 @@ def HyperTest_XGB():
 #################################################################################################################  
 
 
-####################### XGBoosting - OVERFITTING #############################
+####################### XGBoosting - focus OVERFITTING #############################
 def HyperTest_XGB_testing():
     ##### setup #####
     dtrain = xgb.DMatrix(X_train, label=y_train)     # train
@@ -210,9 +209,6 @@ def HyperTest_XGB_testing():
 #################################################################################################################  
 
 
-
-
-
 ###################### RANDOM FORREST ###################
 def HyperTest_RF():
     
@@ -281,9 +277,7 @@ def HyperTest_RF():
     print("Max F1:",F1_opt)
 
 
-###################### RANDOM FORREST - OVERFITTING TESTING ###################
-
-###################################################
+###################### RANDOM FORREST - focus OVERFITTING ###################
 
 def HyperTest_RF_testing():
     
@@ -333,11 +327,7 @@ def HyperTest_RF_testing():
     print("Max Accuracy:",acc_opt)
     print("Max F1:",F1_opt)
 
-
-
-
 ###################################################
-
 
 
 ###################### k - nearest neighbours ###################
@@ -408,13 +398,11 @@ def HyperTest_kNN():
     print("Max F1:",F1_opt)
 
 
-
-
 ###################################################
 
 
 
-#HyperTest_RF()                 ## nochmal testen ab logloss nicht als option betrachtet
+#HyperTest_RF()
 
 #HyperTest_XGB()
 

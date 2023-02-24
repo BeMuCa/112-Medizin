@@ -1,96 +1,81 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" 
-Test der Decision Trees
-hier F1: 0.960999(0.961)  -- 0.959171(0.959)
 """
 
-#import csv
-#import scipy.io as sio
+Script for testing the random forest algorithm using the sklearn library and saving it into a pickle file if needed.
+
+"""
+__author__ = "Berk Calabakan"
+
+
 
 import matplotlib.pyplot as plt
 import pickle
-#import pandas as pd
-
-from sklearn.tree import export_graphviz
-import graphviz
-
-# evaluate random forest algorithm for classification
 import numpy as np
-from sklearn import tree
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics                                     # for F1 score
+from sklearn import metrics
 from sklearn.utils import compute_class_weight
 
 from wettbewerb import load_references
 from features_112 import features
 from numpy import genfromtxt
 import time
-### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
-
-ecg_leads,ecg_labels,fs,ecg_names = load_references() # Importiere EKG-Dateien, Diagnose(A,N),
-                                                      # Sampling-Frequenz (Hz) und Name (meist fs=300 Hz)
-
-####################################################    ############## Array + Debugging stuff init
-
-labels = np.array([])               # Array für labels mit 1(A) und 0(N)
-fail_label = np.array([])           # Array für labels mit ~ und O
 
 
-################################################################## Calculate the features
+### Load Trainings data
+ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
+### Array initiation
+labels = np.array([])
+fail_label = np.array([])
+
+
+### Calculate the features
 #features = features(ecg_leads,fs);                 
 #features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
 #features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
 features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
 #features = genfromtxt('learningfeatures_2_stärksten.csv', delimiter=',')
-#features = features.reshape(-1,1)
-################################################################## Change labels to 1 and 0
 
+### Change labels to 1 and 0 
+### Delete labels with values != 0 or 1 and corresponding features
 for nr,y in enumerate(ecg_labels):
 
-    if ecg_labels[nr] == 'N':                   # normal:   N = 0
+    if ecg_labels[nr] == 'N':
         labels = np.append(labels,0)
-        continue                                                                                # continue damit der nicht ins else geht
+        continue
 
-    if ecg_labels[nr] == 'A':                   # Flimmern: A = 1
+    if ecg_labels[nr] == 'A':
         labels = np.append(labels,1)
         continue
 
-    #if ecg_labels[nr] != 'A' and ecg_labels[nr] != 'N':                                       # else wollte nicht klappen irgendwie
     else:
         fail_label= np.append(fail_label, nr)
-        #features = np.delete(features, nr,0)
-        #labels = np.append(labels,-1)           # noise und anderes : -1
 
+### Delete features for the labels ~ and O
+features = np.delete(features, fail_label.astype(int), axis=0)
 
-################################################################## delete labels and related features with values != 0 or 1 
-
-features = np.delete(features, fail_label.astype(int), axis=0)          # Delete every ~ or O in features
-
-
-
-###################################################################  Trainings und Test Satz Split
-
+### Training and test split
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=7)
 
-##################################################################  Modell und Training 
+### Model and Training 
 #class_weights = compute_class_weight('balanced',), class_weight='balanced'
 
 # start the timer 
 start_time = time.time()
 
-model = RandomForestClassifier(n_estimators= 100, max_features=14, criterion = "entropy") # 
+model = RandomForestClassifier(n_estimators= 100, max_features=14, criterion = "entropy")
 model.fit(X_train,y_train)
 
-##################################################################  Prediction
+### Prediction
 
 Predictions = model.predict(X_test)         
 end_time = time.time()
-##################################################################  Performance berechnung      
+### Performance berechnung      
 
 # nutzbar mit 'N' -> 0 (statt '0'); 
 #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)        # Teil in 10 gruppen,            
@@ -101,9 +86,7 @@ end_time = time.time()
 
 
 # Printen für uns                                                    
-print("################")
-#print(Predictions)                              # [1. 0. 0. ..]
-#print("---",y_test)
+
 print("######### Random Forrest #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
@@ -114,25 +97,9 @@ print('#####################')
 scores = cross_val_score(model, features, labels, cv = 10)
 print(scores)
 
-#print('Accuracy: %.3f (%.3f)' % (np.mean(n_accuracy), np.std(n_accuracy)))                # Mittelwert und Standartdeviation
 
-#print('Der F1 score: \n')
-
-#print(n_f1)
-
-########################### Plotting:
-
-
-
-
-
-
-########################### save model
-
+### Save model
 print("Saving...")
-
 #filename = "RF_final_2_weakmodel.pickle"
-
 #pickle.dump(model, open(filename, "wb"))
-
 print("----done------")

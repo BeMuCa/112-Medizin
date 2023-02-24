@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """
-Beispiel Code und  Spielwiese
+
+The features that we use in the algorithms.
 
 """
+__author__ = "Berk Calabakan and Raoul Fürst"
 
 import csv
 import scipy.io as sio
@@ -29,11 +30,24 @@ from sklearn.preprocessing import MinMaxScaler,RobustScaler
 
 def features(ecg_leads,fs, set = 2):
     '''
-    set = 1: only the most gain bringing features 
-    set = 2: all features
-    ------- We use all features as they have the same average gain
-    set = 3: minimized testing 1 ( to be tested)
-    set = 4: delete bad feats 1 
+        Parameters
+    ----------
+    model_name : str
+        Dateiname des Models. In Code-Pfad
+    ecg_leads : list of numpy-Arrays
+        EKG-Signale.
+    fs : float
+        Sampling-Frequenz der Signale.
+    set : int (default 2)
+        Different set of features that we want to calculate 
+        set = 1: two random weak features
+        set = 2: all features
+        set = 3: strongest two features
+        set = 4: strongest five features
+    Returns
+    -------
+    features : array of the features
+
     '''
     
     scaler = MinMaxScaler()                                   # initialisierung des Scalers
@@ -288,18 +302,14 @@ def features(ecg_leads,fs, set = 2):
         print("Features von: \t" + str(idx) + "\t EKG Signalen wurden verarbeitet.")
 
       if(set==2):
-        ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
         features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass,peaks_per_lowPass, max_amplitude, 
                                         peak_diff_median, peaks_per_measure, peak_diff_mean, rmssd_neu, sdnn_neu, 
                                          nn20, nn50, pNN20, pNN50]))
       if(set==1):
-        ## Erstellen der Feature-Matrix inklusive der Labels.       # transpose weil für tree brauchen wir die Form
-        features =np.transpose(np.array([ sdnn,relativ_lowPass])) # nn20 ist stärkste
+        features =np.transpose(np.array([ sdnn,relativ_lowPass]))
       if(set==3):
-        ## stärksten
-        features =np.transpose(np.array([ relativ_lowPass, relativ_bandPass])) # nn20 ist stärkste
+        features =np.transpose(np.array([ relativ_lowPass, relativ_bandPass])) 
       if(set==4):
-        ## Schlechtesten raus: 3,4,5,
         features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, peak_diff_median, nn50]))
     
     #### Skalierung der features :

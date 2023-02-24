@@ -1,99 +1,81 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-"""
-Test of Gradien Boosting algorithm
-   Plotten der Feature Gains
-   Plotten der Anzahl an Feature Nutzungs 
-   Das Modell des GBoostings kann gespeichert werden
-   F1:0.95978(0.96)
 """
 
+Script for testing the gradient boosting algorithm using the xgboost library and saving it into a json file if needed.
+Also offers the function to plot the gain and weight of the features used in the algorithm.
 
-#import csv
-#import scipy.io as sio
-import graphviz
+"""
+__author__ = "Berk Calabakan"
+
+
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from wettbewerb import load_references
 from features_112 import features
-#import features_112 as features_112
 from numpy import genfromtxt
-from sklearn.model_selection import cross_val_score;
 import xgboost as xgb
-from xgboost import XGBClassifier
-from xgboost import plot_tree
 
-from sklearn.model_selection import train_test_split            # 
-from sklearn import metrics                                     # for F1 score
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
 import time
 
-########################### Load Trainings data ########################################################
-
+### Load Trainings data
 ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
-########################### Array init  #################################################################
-    
-labels = np.array([], dtype=object)                    # Array für labels mit 1(A) und 0(N)
-        
-fail_label = np.array([], dtype=object)                # Array für labels mit ~ und O
-    
-Predictions_boost = np.array([], dtype=object)          # Array für Prediction
+### Array initiation
+labels = np.array([], dtype=object)
+fail_label = np.array([], dtype=object)
+Predictions_boost = np.array([], dtype=object)
 
-
-########################### Calculate the features ######################################################
-
-#features = features(ecg_leads,fs)          #   --> das will er nicht checken auch mit methoden import
+### Calculate the features
+#features = features(ecg_leads,fs)          
 #features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
 #features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
 #features = genfromtxt('learningfeatures_2_stärksten.csv', delimiter=',')
 features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
-#features = features.reshape(-1,1)
-########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
+### Change labels to 1 and 0 
+### Delete labels with values != 0 or 1 and corresponding features
 for nr,y in enumerate(ecg_labels):
-    if ecg_labels[nr] == 'N':                   
-        labels = np.append(labels,'0')  # normal = 0,N           
-        continue                                            # ohne continue geht er aus unerklärlichen gründen immer ins else
+    if ecg_labels[nr] == 'N':
+        labels = np.append(labels,'0')
+        continue
 
-    if ecg_labels[nr] == 'A':                               # ""
-        labels = np.append(labels,'1')  # flimmern = 1,A
+    if ecg_labels[nr] == 'A':
+        labels = np.append(labels,'1')
         continue
 
     else:
         fail_label= np.append(fail_label, nr)
 
-    
-########################### delete feature for the labels ~ and O    #########################################
-    
+
+### Delete features for the labels ~ and O
 features = np.delete(features, fail_label.astype(int), axis=0)
 
-###########################  Trainings und Test Satz Split ###################################################
-  
+### Training and Test split
 X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.3, random_state=7)
 
-############################### Modell und Training 
-
-dtrain = xgb.DMatrix(X_train_boost, label=y_train_boost) # features und labels in Dmatrix gepackt(nötig bei xgb)    # train
-dtest = xgb.DMatrix(X_test_boost, label=y_test_boost) # features und labels in Dmatrix gepackt(nötig bei xgb)       # test
+### Model und Training 
+dtrain = xgb.DMatrix(X_train_boost, label=y_train_boost) 
+dtest = xgb.DMatrix(X_test_boost, label=y_test_boost)
 
 #### parameters:
-
-evallist = [(dtrain, 'train'), (dtest, 'eval')]             # evaluieren des Trainings
-num_round = 55                                              # ab 21,22,23 .. alle gleich
-param = {}       # param für das Modell      
-#'max_depth': 16, 'eta': 0.3, 'objective': 'binary:hinge', 'gamma': 5.0, 'subsample':0.75,'lambda':5.0,'alpha':0.3
+evallist = [(dtrain, 'train'), (dtest, 'eval')]
+num_round = 55
+param = {'max_depth': 16, 'eta': 0.3, 'objective': 'binary:hinge', 'gamma': 5.0, 'subsample':0.75,'lambda':5.0,'alpha':0.3}  # param of the model      
 
 # start the timer 
 start_time = time.time()
 
-# training:
-
+### training:
 bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds = 3)        # xgb.train returns booster model
 
+
+
 # Plotting the features weights and gains (comment out when timing the algorithm) 
+# Information about the importance types: https://towardsdatascience.com/be-careful-when-interpreting-your-features-importance-in-xgboost-6e16132588e7
 
 #featureScore_weight = bst.get_score( importance_type='weight')    #the number of times a feature is used to split the data across all trees. 
 #featureScore_gain = bst.get_score( importance_type='gain')        #the average gain across all splits the feature is used in.
@@ -108,12 +90,7 @@ bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds
 #values_gain = featureScore_gain.values()
 #
 #a = []
-#weight = list(values_weight)
-#gain = list(keys_gain)
-
-#namen = [ "rel_lowPass", "rel_highPass", "rel_bandPass", "max_ampl.", "sdnn", "peak_diff_median", "peaks_per_measure", "peaks_per_lowPass", "peak_diff_mean", "rmssd", "rmssd_neu", "sdnn_neu", "nn20", "nn50", "pNN20", "pNN50"]
-
-
+#namen = [ "rel_lowPass", "rel_highPass", "rel_bandPass", "max_ampl.", "peak_diff_median", "peaks_per_measure", "peaks_per_lowPass", "peak_diff_mean", "rmssd_neu", "sdnn_neu", "nn20", "nn50", "pNN20", "pNN50"]
 
 #for nr,y in enumerate(gain):
 #    if(y == "f0"):
@@ -144,11 +121,7 @@ bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds
 #        a.append(namen[12])
 #    if(y == "f13"):
 #        a.append(namen[13])
-#    if(y == "f14"):
-#        a.append(namen[14])
-#    if(y == "f15"):
-#        a.append(namen[15])
-    
+
 
 #fig, (ax1) = plt.subplots(1,1 ,figsize=(10,10))
 #ax1.bar(a, values_gain, width=1, edgecolor="purple", linewidth=0.7)
@@ -158,38 +131,32 @@ bst = xgb.train( param, dtrain, num_round, evals=evallist, early_stopping_rounds
 #fig, (ax1, ax2, ax3) = plt.subplots(1, 3,figsize=(10,10))
 #
 #ax1.bar(keys_gain, values_gain, width=1, edgecolor="purple", linewidth=0.7)
-#ax1.set_title("GAIN per feature")
-
+#ax1.set_title("GAIN per feature")#
 #ax2.bar(keys_weight, values_weight, width=1, edgecolor="purple", linewidth=0.7)
-#ax2.set_title("Number of times used")
-
-
+#ax2.set_title("Number of times used")#
 #ax1.axhline(y=5, color='red', linestyle='--')
 #ax1.axhline(y=10, color='red', linestyle='--')
 #plt.show()
 
-#plot_tree(bst)
-#plt.show()
 
-##################################################################  Prediction
+### Prediction
+y_pred = bst.predict(dtest)
+y_prediction = [str(round(value)) for value in y_pred]
 
-y_pred = bst.predict(dtest)             # [ 1.  0. ....] -> List voller Floats
+# End time of the timer
 end_time = time.time()
-y_prediction = [str(round(value)) for value in y_pred]             # ['1', '0', ..]
 
-##################################################################  Performance berechnung 
+### Performance berechnung 
 print("######### XGB Performance #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test_boost, y_prediction))
 
-print("F1:" , metrics.f1_score(y_test_boost, y_prediction, average='micro'))       # weil wir alles in float haben kein binary mgl
+print("F1:" , metrics.f1_score(y_test_boost, y_prediction, average='micro'))
 
 print("Runtime: {:.6f} seconds".format(end_time - start_time))
 print("################")
-# save Trained Modell
 
+### Save trained Model
 print("Saving...")
-
 #bst.save_model('GB_final_2weakest.json')
-
 print("-----DONE-----")

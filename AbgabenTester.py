@@ -1,13 +1,13 @@
-# Test der Decision Trees
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
 
-#import csv
-#import scipy.io as sio
+Script for testing the submission of our models.
+
+"""
+__author__ = "Berk Calabakan"
 
 import matplotlib.pyplot as plt
-
-#import pandas as pd
-
-# evaluate random forest algorithm for classification
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import cross_val_score
@@ -36,81 +36,84 @@ from train import RandomForrest_112
 import features_112 as features_112
 from sklearn import metrics
 
-
+### Load Trainings data
 ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
-labels = np.array([], dtype=object)                    # Array für labels mit 1(A) und 0(N)
-        
-fail_label = np.array([], dtype=object)                # Array für labels mit ~ und O
+### Array initiation
+labels = np.array([], dtype=object)      
+fail_label = np.array([], dtype=object)
     
 
-########################### Calculate the features ######################################################
-features = genfromtxt('learningfeatures_16_scaled.csv', delimiter=',')
+### Calculate the features
+features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
 #features = features(ecg_leads,fs)
 print("FEATURES DONE")
-########################### Delete labels with values != 0 or 1 and corresponding features  ###############
 
+### Change labels to 1 and 0 
+### Delete labels with values != 0 or 1 and corresponding features
 for nr,y in enumerate(ecg_labels):
     if ecg_labels[nr] == 'N':                   
-        labels = np.append(labels,'N')  # normal = 0,N           
-        continue                                            # ohne continue geht er aus unerklärlichen gründen immer ins else
+        labels = np.append(labels,'N')
+        continue
 
-    if ecg_labels[nr] == 'A':                               # ""
-        labels = np.append(labels,'A')  # flimmern = 1,A
+    if ecg_labels[nr] == 'A':
+        labels = np.append(labels,'A')
         continue
 
     else:
         fail_label= np.append(fail_label, nr)
 
-    
-########################### delete feature for the labels ~ and O    #########################################
-    
+### delete feature for the labels ~ and O     
 features = np.delete(features, fail_label.astype(int), axis=0)
 
-
-########################### Test and training Split    #########################################
-
+### Test and training split
 X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.4, random_state=7)
 
-
-####
+#### test method
 def test(model_name : str='GBoosting_model.json'):
+    '''
+    Parameters
+    ----------
+    model_name : str
+        Dateiname des Models. In Code-Pfad
+    -------
+    '''
 
-    ##################           RF             #########################    
+    ### RF  
     if(model_name == 'RF_Model.pickle'):
         print("----- Testing RF ... ------")
-        loaded_model = pickle.load(open(model_name, "rb"))            # load model
+        loaded_model = pickle.load(open(model_name, "rb"))
 
-        Predictions_array = loaded_model.predict(features)          # predict
+        Predictions_array = loaded_model.predict(features)
     
 
-    ##################          XGB             #########################
+    ### XGB 
     if(model_name == 'GB_model.json'):
         print("----- Testing XGB ... ------")
         bst = xgb.Booster()
-        bst.load_model(fname = model_name)              ## load model
+        bst.load_model(fname = model_name)
 
-        dtest = xgb.DMatrix(features)                   ## DMatrix format is needed -- bei abgabe hier features rein
+        dtest = xgb.DMatrix(features)
         
-        Predictions_array = bst.predict(dtest)                     ## predict based on the features
+        Predictions_array = bst.predict(dtest)
         
-    ##################           SVM             #########################    
+    ### SVM
     if(model_name == 'SVM_model.pickle'):
         print("----- Testing RF ... ------")
-        loaded_model = pickle.load(open(model_name, "rb"))            # load model
+        loaded_model = pickle.load(open(model_name, "rb"))
 
-        Predictions_array = loaded_model.predict(features)          # predict
+        Predictions_array = loaded_model.predict(features)
         Predictions_array = Predictions_array.astype(float)
 
 
-    ##################           NN             #########################    
+    ### NN
     if(model_name == 'NN_model.pickle'):
         print("----- Testing RF ... ------")
-        loaded_model = pickle.load(open(model_name, "rb"))            # load model
+        loaded_model = pickle.load(open(model_name, "rb"))
 
-        Predictions_array = loaded_model.predict(features)          # predict
+        Predictions_array = loaded_model.predict(features)
 
-    ######################################################################## UMWANDELN DER PREDICTS ZU 'A' und 'N'
+    ### transforming the predicts to 'A' and 'N'
     pred = np.array([], dtype=object)
     
     for nr,y in enumerate(Predictions_array):                           
@@ -119,20 +122,17 @@ def test(model_name : str='GBoosting_model.json'):
 
         if y == 1. or y =='1':
             pred = np.append(pred,'A')  # flimmern = 1,A
-            
-    
-       ######################################################################
-    
+
     print("DAS SIND DIE PREDICITONS", pred)
     print("DAS SIND DIE WAHREN WERTE", labels)
 
-##################################################################  Performance berechnung 
 
+### Performance calculation
     print("-------------")
     print("Accuracy: %.3f " % metrics.accuracy_score(labels, pred))
 
     print("F1:" , metrics.f1_score(labels, pred, average='micro'))
-
+    print("-------------")
     
 #test()
 test('RF_Model.pickle')

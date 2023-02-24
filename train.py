@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Reads the training data and trains the RandomForrest Classifier
+
+Testing the requiered train script.
 
 """
-
-__author__ = "Gruppe 112"
+__author__ = "Berk Calabakan"
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier

@@ -1,10 +1,14 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Skript zum kreieren eines Ensembles
+
+Script for testing the ensemble.
+
 """
+__author__ = "Berk Calabakan"
+
 from wettbewerb import load_references
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import VotingClassifier
 import pickle
 import features_112 as features_112
 import xgboost as xgb
@@ -18,76 +22,70 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import RepeatedStratifiedKFold
 ##
 
-
+### Load Trainings data
 ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
-labels = np.array([], dtype=object)                    # Array für labels mit 1(A) und 0(N)
-        
-fail_label = np.array([], dtype=object)                # Array für labels mit ~ und O
-    
+### Array initiation
+labels = np.array([], dtype=object)  
+fail_label = np.array([], dtype=object)
 
-########################### Calculate the features ######################################################
-
+### Calculate the features
 #features = features_112.features(ecg_leads,fs,2)
 features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
 #features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
-#features = features.reshape(-1,1)
 print("FEATURES DONE")
 
-########################### Delete labels with values != 0 or 1 and corresponding features  ###############
-
+### Change labels to 1 and 0 
+### Delete labels with values != 0 or 1 and corresponding features
 for nr,y in enumerate(ecg_labels):
     if ecg_labels[nr] == 'N':                   
-        labels = np.append(labels,'N')  # normal = 0,N           
-        continue                                            # ohne continue geht er aus unerklärlichen gründen immer ins else
+        labels = np.append(labels,'N')
+        continue
 
-    if ecg_labels[nr] == 'A':                               # ""
-        labels = np.append(labels,'A')  # flimmern = 1,A
+    if ecg_labels[nr] == 'A':
+        labels = np.append(labels,'A')
         continue
 
     else:
         fail_label= np.append(fail_label, nr)
 
     
-########################### delete feature for the labels ~ and O    #########################################
-    
+### Delete features for the labels ~ and O
 features = np.delete(features, fail_label.astype(int), axis=0)
 
 
-########################### Test and training Split    #########################################
-
+### Test and training Split
 X_train_boost, X_test_boost, y_train_boost, y_test_boost = train_test_split(features, labels, test_size=0.3, random_state=7)
 
-######################## Load models    
+### Load models    
 
 ## RF
-RF = pickle.load(open('RF_final_2.pickle', "rb"))            # load model
+RF = pickle.load(open('RF_final_2_weakmodel.pickle', "rb"))
 prediction_RF = RF.predict(X_test_boost)
 
 ## xgb
 bst = xgb.Booster()
-bst.load_model(fname = 'GB_final_2.json')              ## load model
+bst.load_model(fname = 'GB_final_2.json')
 dtest = xgb.DMatrix(X_test_boost) 
 pred_xgb = bst.predict(dtest) 
 prediction_xgb = [round(value) for value in pred_xgb]
 
 ## NN
-#NN = pickle.load(open('NN_final_2features.pickle', "rb"))            # load model
+#NN = pickle.load(open('NN_final_2features.pickle', "rb"))
 #prediction_NN = NN.predict(X_test_boost)
 #prediction_NN = prediction_NN.astype(float)
 
 ## kNN
 
-kNN = pickle.load(open('kNN_final_2.pickle', "rb"))            # load model
+kNN = pickle.load(open('kNN_final_2weakest.pickle', "rb"))
 prediction_kNN = kNN.predict(X_test_boost)
 
 ## SVM
-SVM = pickle.load(open('SVM_final_2features.pickle', "rb"))            # load model
+SVM = pickle.load(open('SVM_final_2features.pickle', "rb"))
 prediction_SVM = SVM.predict(X_test_boost)
 prediction_SVM = prediction_SVM.astype(float)
-## Ensemble:                                                               ## HIER ENTSCHEIDEN OB SVM ODER KNN REINKOMMT
-"""Wir kriegen in der Prediction_xx eine Liste voll mit den """
 
+## Ensemble:
 prediction_Ensemble = np.array([])
 for nr,y in enumerate(prediction_RF):
     if (prediction_xgb[nr] + y + prediction_kNN[nr]) == 2 or (prediction_xgb[nr] + y + prediction_kNN[nr] ) == 3:
@@ -95,7 +93,7 @@ for nr,y in enumerate(prediction_RF):
     else:
         prediction_Ensemble = np.append(prediction_Ensemble,0)
 
-######################################################################## UMWANDELN DER PREDICTS ZU 'A' und 'N'
+### Change predicts to 'A' and 'N'
 prediction_Ensemble_end = np.array([], dtype=object)
 prediction_xgb_end = np.array([], dtype=object)
 prediction_NN_end = np.array([], dtype=object)
@@ -140,7 +138,7 @@ for nr,y in enumerate(prediction_SVM):
         prediction_SVM_end = np.append(prediction_SVM_end,'A')  # flimmern = 1,A
         
 
-##################################################################  Performance berechnung 
+### Performance berechnung 
 print(" ")
 
 ## xgb
@@ -180,6 +178,7 @@ print("-------------------------")
 print(" ")
 ##### 
 
+### Crossvalidation if needed
 #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)        # Teil in 10 gruppen,            
 #
 #n_f1 = cross_val_score(model, X_test, y_test, scoring='f1', cv=cv, n_jobs=-1, error_score='raise')       # f1 fürs scoring
