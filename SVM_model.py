@@ -1,18 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
 
+Script for testing the SVM algorithm using the sklearn library and saving it into a pickle file if needed.
 
-
-
+"""
 
 
 import scipy.io as sio
 import matplotlib.pyplot as plt
 import numpy as np
-from ecgdetectors import Detectors
-import os
-from scipy.fft import fft, fftfreq
 from wettbewerb import load_references
-import math
-import features_112
 from sklearn.svm import LinearSVC;
 from sklearn.svm import SVR;
 from sklearn.svm import SVC;
@@ -26,88 +24,56 @@ from sklearn.preprocessing import StandardScaler;
 from sklearn.model_selection import cross_val_score;
 import pickle;
 
+### Load Trainings data
+ecg_leads,ecg_labels,fs,ecg_names = load_references()
 
-ecg_leads,ecg_labels,fs,ecg_names = load_references();
+### Array initiation   
+labels = np.array([], dtype=object) 
+fail_label = np.array([], dtype=object)
+Predictions = np.array([], dtype=object)
 
-########################### Array init  #################################################################
-    
-labels = np.array([], dtype=object)                    # Array für labels mit 1(A) und 0(N)
-        
-fail_label = np.array([], dtype=object)                # Array für labels mit ~ und O
-    
-Predictions = np.array([], dtype=object)          # Array für Prediction
-
-
-########################### Calculate the features ######################################################
-
+### Calculate the features
 #features = features_112.features(ecg_leads,fs)
 
 ### loading calculated features
 features = genfromtxt('learningfeatures.csv', delimiter=',')
 
 
-########################### Delete labels with values != 0 or 1 and corresponding features  ###############
-
+### Change labels to 1 and 0 
+### Delete labels with values != 0 or 1 and corresponding features
 for nr,y in enumerate(ecg_labels):
-    if ecg_labels[nr] == 'N':                   
-        labels = np.append(labels,'0')  # normal = 0,N           
-        continue                                            # ohne continue geht er aus unerklärlichen gründen immer ins else
+    if ecg_labels[nr] == 'N':
+        labels = np.append(labels,'0')
+        continue
 
-    if ecg_labels[nr] == 'A':                               # ""
-        labels = np.append(labels,'1')  # flimmern = 1,A
+    if ecg_labels[nr] == 'A':
+        labels = np.append(labels,'1')
         continue
 
     else:
         fail_label= np.append(fail_label, nr)
 
-    
-########################### delete feature for the labels ~ and O    #########################################
-    
+
+### Delete features for the labels ~ and O
 features = np.delete(features, fail_label.astype(int), axis=0)
 
-###################################################################  Trainings und Test Satz Split
-
+### Training and test split
 X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.4, random_state=7)
 
-##################################################################  Modell und Training 
+### Model and Training 
 model = Pipeline([
     ("scaler", StandardScaler()),
     ("svc", SVC(kernel = "poly", degree=3,C=50)) # 50 fittet am besten, eventuell overfittung? -> senken
     ])
 # model = SVR(kernel = "poly", degree=2,C=100,epsilon=0.1);
 # model = LinearSVR(epsilon=1.5);
-model.fit(X_train,y_train);
+model.fit(X_train,y_train)
 
-#################################################################  Prediction
+### Prediction
 Predictions = np.array([], dtype=object)
 Predictions = model.predict(X_test)         
-#np.savetxt("predictions.csv", Predictions, delimiter=",")
-#np.savetxt("y_test.csv", y_test, delimiter=",")
-#Predictions = Predictions.astype(int)
-#Predictions = Predictions.astype(string)
-#Predictions = np.rint(Predictions)
-# Predictions = Predictions.astype(int)
-# print(y_test.dtype)
-# print(Predictions.dtype)
-# for i in range(0,Predictions.size):
-#     if Predictions[i] >= 1 or Predictions[i] <= -1:
-#         Predictions[i] = '1';
-#     else:
-#         Predictions[i] = '0';
-# np.savetxt("predictions.csv", Predictions, delimiter=",")
-# Predictions = Predictions.astype(object)
-# for i in range(0,Predictions.size):
-#     if Predictions[i] >= 1 or Predictions[i] <= -1:
-#         Predictions[i] = '1';
-#     else:
-#         Predictions[i] = '0';
-# Predictions = Predictions.astype(object)
-# Printen für uns                                                    
-print("################")
-print('labels:')
-print(y_test)
-print('predicitons:')
-print(Predictions)
+                                        
+
 print("################")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))

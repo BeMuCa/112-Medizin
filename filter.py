@@ -32,15 +32,15 @@ print(filtered_state_means.size)
 
 figure, axis = plt.subplots(2, 2)
   
-# For Sine Function
+# Sine Function
 axis[0, 0].plot(range(0, filtered_state_means.size), filtered_state_means)
 axis[0, 0].set_title("filtered")
   
-# For Cosine Function
+# Cosine Function
 axis[0, 1].plot(range(0, ecg_leads[3].size), ecg_leads[3])
 axis[0, 1].set_title("normal")
   
-# For Tangent Function
+# Tangent Function
 axis[1, 0].plot(range(0, smoothed_state_means.size), smoothed_state_means)
 axis[1, 0].set_title("smoothend")
 

@@ -72,9 +72,9 @@ model = RandomForestClassifier(n_estimators= 100, max_features=14, criterion = "
 model.fit(X_train,y_train)
 
 ### Prediction
-
 Predictions = model.predict(X_test)         
 end_time = time.time()
+
 ### Performance berechnung      
 
 # nutzbar mit 'N' -> 0 (statt '0'); 
@@ -85,9 +85,8 @@ end_time = time.time()
 #n_accuracy = cross_val_score(model, X_test, y_test, scoring='accuracy', cv=cv, n_jobs=-1, error_score='raise')       # für uns 
 
 
-# Printen für uns                                                    
-
-print("######### Random Forrest #######")
+### Performance berechnung 
+print("######### Random Forrest Performance #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
 print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
