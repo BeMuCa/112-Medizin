@@ -67,9 +67,9 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 <<<<<<< HEAD
 ax.scatter(features_reduced[:, 0], features_reduced[:, 1], features_reduced[:, 2], c=colors) 
-ax.set_xlabel('12')
-ax.set_ylabel('2')
-ax.set_zlabel('6')
+ax.set_xlabel('NN50')
+ax.set_ylabel('relativeHighPass')
+ax.set_zlabel('peakdiffMedian')
 =======
 ax.scatter(features_reduced[:, 0], features_reduced[:, 1], features_reduced[:, 2], c=colors)
 ax.set_xlabel('nn50')
