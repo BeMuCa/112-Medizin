@@ -37,8 +37,10 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 ################################################################## Calculate the features
 
 #features = features(ecg_leads,fs)
-features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
-
+#features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
+#features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
+features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+#features = genfromtxt('learningfeatures_2_stärksten.csv', delimiter=',')
 ################################################################## Change labels to 1 and 0
 
 for nr,y in enumerate(ecg_labels):
@@ -70,7 +72,7 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 ##################################################################  Modell und Training 
 
-model = KNeighborsClassifier() #n_neighbors = 4 , p = 1 , weights = 'uniform'
+model = KNeighborsClassifier(n_neighbors = 1 , p = 1 , weights = 'uniform') #
 
 model.fit(X_train,y_train)
 
@@ -98,12 +100,6 @@ print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 
 print('#####################')
 
-#print('Accuracy: %.3f (%.3f)' % (np.mean(n_accuracy), np.std(n_accuracy)))                # Mittelwert und Standartdeviation
-
-#print('Der F1 score: \n')
-
-#print(n_f1)
-
 scores = cross_val_score(model, features, labels, cv = 10)
 print(scores)
 
@@ -111,7 +107,7 @@ print(scores)
 
 #print("Saving...")
 #
-filename = "kNN_model_default_5.pickle"
+filename = "kNN_final_2weakest.pickle"
 #
 pickle.dump(model, open(filename, "wb"))
 #

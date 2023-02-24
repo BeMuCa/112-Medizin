@@ -297,7 +297,7 @@ def features(ecg_leads,fs, set = 2):
         features =np.transpose(np.array([ sdnn,relativ_lowPass])) # nn20 ist stärkste
       if(set==3):
         ## stärksten
-        features =np.transpose(np.array([ nn20, nn50,pNN50, peak_diff_mean,pNN20])) # nn20 ist stärkste
+        features =np.transpose(np.array([ relativ_lowPass, relativ_bandPass])) # nn20 ist stärkste
       if(set==4):
         ## Schlechtesten raus: 3,4,5,
         features =np.transpose(np.array([ relativ_lowPass, relativ_highPass, relativ_bandPass, peak_diff_median, nn50]))

@@ -28,7 +28,7 @@ from sklearn.utils import compute_class_weight
 from wettbewerb import load_references
 from features_112 import features
 from numpy import genfromtxt
-
+import time
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
 
 ecg_leads,ecg_labels,fs,ecg_names = load_references() # Importiere EKG-Dateien, Diagnose(A,N),
@@ -43,8 +43,10 @@ fail_label = np.array([])           # Array für labels mit ~ und O
 ################################################################## Calculate the features
 
 #features = features(ecg_leads,fs);                 
-#features = genfromtxt('learningfeatures_ALLESINDHIER.csv', delimiter=',')
-features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
+#features = genfromtxt('learningfeatures_14features.csv', delimiter=',')
+#features = genfromtxt('learningfeatures_5_wichtigsten.csv', delimiter=',')
+features = genfromtxt('learningfeatures_2_features.csv', delimiter=',')
+#features = genfromtxt('learningfeatures_2_stärksten.csv', delimiter=',')
 #features = features.reshape(-1,1)
 ################################################################## Change labels to 1 and 0
 
@@ -77,13 +79,17 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 ##################################################################  Modell und Training 
 #class_weights = compute_class_weight('balanced',), class_weight='balanced'
-model = RandomForestClassifier() # n_estimators= 30, max_features=5, criterion = "entropy"
+
+# start the timer 
+start_time = time.time()
+
+model = RandomForestClassifier(n_estimators= 100, max_features=14, criterion = "entropy") # 
 model.fit(X_train,y_train)
 
 ##################################################################  Prediction
 
 Predictions = model.predict(X_test)         
-
+end_time = time.time()
 ##################################################################  Performance berechnung      
 
 # nutzbar mit 'N' -> 0 (statt '0'); 
@@ -102,7 +108,7 @@ print("######### Random Forrest #######")
 
 print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
 print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
-
+print("Runtime: {:.6f} seconds".format(end_time - start_time))
 print('#####################')
 
 scores = cross_val_score(model, features, labels, cv = 10)
@@ -125,8 +131,8 @@ print(scores)
 
 print("Saving...")
 
-filename = "RF_model_default_5.pickle"
+#filename = "RF_final_2_weakmodel.pickle"
 
-pickle.dump(model, open(filename, "wb"))
+#pickle.dump(model, open(filename, "wb"))
 
 print("----done------")

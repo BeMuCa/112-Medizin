@@ -121,7 +121,7 @@ print("Saving...")
 #print("################")
 
 #print("Accuracy: %.3f " % metrics.accuracy_score(y_test, Predictions))
-#print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
+print("F1:" , metrics.f1_score(y_test, Predictions, average='micro'))
 #print("Accuracy: %.3f " % metrics.accuracy_score(y_test_k, Predictions_k))
 #print("F1:" , metrics.f1_score(y_test_k, Predictions_k, average='micro'))
 #print('#####################')
