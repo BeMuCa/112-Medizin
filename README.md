@@ -1,3 +1,15 @@
+# Welcome to our code for the AI in medicine challenge
+We used five different algorithms (NN,kNN,SVM,RF,GB) to test their capabilities in finding sick patients among a given dataset.
+Our goals was not only to test out the performance of the algorithms, but to test different features and find out which ones 
+were the strongest ones.
+
+
+
+
+
+# Ignore the following section if you are not interested in the conditions and introduction of the challenge to the task
+
+
 # 18-ha-2010-pj
 Demo-Code zum Projektseminar "Wettbewerb künstliche Intelligenz in der Medizin" WiSe 2021/2022. Das Beispiel definiert gleichzeitig das Interface zu unserem Evaluierungs-System.
 
